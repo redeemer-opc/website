@@ -1,4 +1,5 @@
 <?php
+
 function theme_enqueue_styles() {
 
     $parent_style = 'parent-style';
@@ -20,8 +21,8 @@ function ropc_get_families()
 		'state',
 		'zip',
 		'anniversary',
-		'phone',
-		'email',
+		'home_phone',
+		'fam_id',
 	];
 	static $person_attrs = [
 		'first_name',
@@ -30,6 +31,11 @@ function ropc_get_families()
 		'birthday',
 		'occupation',
 		'family_role',
+		'mem_id',
+		'maiden_name',
+		'type',
+		'cellphone',
+		'email'
 	];
 
 	global $wpdb;
@@ -42,18 +48,21 @@ function ropc_get_families()
 			state,
 			zip,
 			anniversary,
-			phone,
+			home_phone,
 			email,
 			family_role,
 			first_name,
 			middle_name,
 			last_name,
 			birthday,
-			occupation
+			occupation,
+			cellphone,
+			type,
+			maiden_name
 		FROM ropc_family
 			INNER JOIN ropc_family_member ON ropc_family.id = family_id'
 	);
-	
+
 	$families_processed = [];
 	foreach ( $families_raw as $family )
 	{
@@ -66,14 +75,14 @@ function ropc_get_families()
 			];
 			foreach ( $family_wide_attrs as $attr )
 			{
-				$families_processed[ $family_id ][ $attr ] = $family->$attr;	
+				$families_processed[ $family_id ][ $attr ] = $family->$attr;
 			}
 		}
 
 		$person = [];
 		foreach ( $person_attrs as $attr )
 		{
-			$person[ $attr ] = $family->$attr;	
+			$person[ $attr ] = $family->$attr;
 		}
 
 		if ( $family->family_role == 'husband' || $family->family_role == 'wife' )
@@ -107,11 +116,11 @@ function ropc_get_families()
 				$female_fn = $parent[ 'first_name' ];
 			}
 		}
-		
+
 		if ( $male_fn && $female_fn )
 		{
 			$family_name_lf = "$male_ln, $male_fn and $female_fn";
-			
+
 			if ( $female_ln != $male_ln )
 			{
 				$family_name_lf .= " $female_ln";
@@ -142,8 +151,6 @@ function ropc_get_families()
 		$family[ 'name_fl' ] = $family_name_fl;
 		$family[ 'name_lf' ] = $family_name_lf;
 	}
-	
-	return $families_processed;
-} 
 
-?>
+	return $families_processed;
+}

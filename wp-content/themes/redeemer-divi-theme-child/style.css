@@ -11,3 +11,45 @@
  Tags:         light, dark, two-columns, right-sidebar, responsive-layout, accessibility-ready
  Text Domain:  redeemer-divi-theme-child
 */
+
+.css-table
+{
+	display: table;
+}
+
+.css-row
+{
+	display: table-row;
+}
+
+.css-cell
+{
+	display: table-cell;
+}
+
+.family-cell,
+.people-cell
+{
+	padding: 5px;
+}
+
+.person
+{
+
+}
+
+.person-name
+{
+	font-weight: bold;
+}
+
+.person:not( :last-child )
+{
+	margin-bottom: 10px;
+}
+
+[data-placeholder]:empty:after
+{
+	color: #666;
+	content: "[" attr(data-placeholder) "]"
+}
