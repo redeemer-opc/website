@@ -69,21 +69,65 @@ class RopcFamilies
 			exit;
 		}
 
-		if ( isset( $_POST[ 'update_field' ], $_POST[ 'id' ] ) && is_string( $_POST[ 'update_field' ] ) && is_scalar( $_POST[ 'id' ] ) )
+		if ( !isset( $_POST[ 'data_action' ] ) )
 		{
-			$field = explode( '.', $_POST[ 'update_field' ] );
-			if ( count( $field ) != 2 || !in_array( $field[ 0 ], [ 'ropc_family', 'ropc_family_member' ] )
-				|| $field[ 1 ] == 'id' )
+			header( 'HTTP/1.1 400 Bad request' );
+			echo "No 'data_action' parameter given";
+			exit;
+		}
+		$data_action = $_POST[ 'data_action' ];
+
+		if ( !isset( $_POST[ 'table' ] ) || !in_array( $_POST[ 'table' ], [ 'ropc_family', 'ropc_family_member' ] ) )
+		{
+			header( 'HTTP/1.1 400 Bad request' );
+			echo "'table' parameter invalid or missing";
+			exit;
+		}
+		$table = $_POST[ 'table' ];
+
+		if ( !isset( $_POST[ 'fields' ] ) || !is_array( $_POST[ 'fields' ] ) )
+		{
+			header( 'HTTP/1.1 400 Bad request' );
+			echo "'fields' parameter is invalid or missing";
+			exit;
+		}
+		$fields = array_map( function( $val )
+		{
+			return trim( $val ) ?: NULL;
+		}, $_POST[ 'fields' ] );
+		unset( $fields[ 'id' ] );
+
+		if ( $data_action == 'update' )
+		{
+			if ( !isset( $_POST[ 'id' ] ) )
 			{
 				header( 'HTTP/1.1 400 Bad request' );
-				echo "Invalid field '$_POST[update_field]'";
+				echo "No 'id' parameter given";
 				exit;
 			}
+			$id = $_POST[ 'id' ];
 
 			try
 			{
 				global $wpdb;
-				$wpdb->update( $field[ 0 ], [ $field[ 1 ] => ( trim( $_POST[ 'value' ] ) ?: NULL ) ], [ 'id' => $_POST[ 'id' ] ] );
+				$wpdb->update( $table, $fields, [ 'id' => $id ] );
+			}
+			catch ( Exception $e )
+			{
+				header( 'HTTP/1.1 500 Internal server error' );
+				echo $e->getMessage();
+				exit;
+			}
+
+			echo "Updated successfully";
+			exit;
+		}
+		else if ( $data_action == 'create' )
+		{
+			try
+			{
+				global $wpdb;
+				$wpdb->insert( $table, $fields );
 			}
 			catch ( Exception $e )
 			{
@@ -92,12 +136,11 @@ class RopcFamilies
 				exit;
 			}
 
-			echo "Updated successfully";
-			exit;
+			wp_send_json( [ 'id' => $wpdb->insert_id ] );
 		}
 
 		header( 'HTTP/1.1 400 Bad request' );
-		echo "Incomplete request";
+		echo "Invalid action '$data_action'";
 		exit;
 	}
 

@@ -53,3 +53,27 @@
 	color: #666;
 	content: "[" attr(data-placeholder) "]"
 }
+
+.hidden
+{
+	display: none;
+}
+
+.button
+{
+	background: #FFF;
+	border: 1px solid #999;
+	padding: 10px 15px;
+	cursor: pointer;
+}
+
+.button:hover
+{
+	background: #CCC;
+}
+
+.button:active
+{
+	background: #FFF;
+	box-shadow: 2px 2px 5px #CCC inset;
+}

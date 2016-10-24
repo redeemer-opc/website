@@ -3,6 +3,10 @@
 	var selectors = {
 		editable_field : '[data-edit-field]',
 		record_container : '[data-record-id]',
+		add_child : '.add-child',
+		add_family : '.add-family',
+		child_template : '.child-template:first',
+		family_template : '.family-template:first',
 	};
 
 	function onEditableClicked( e )
@@ -22,23 +26,140 @@
 	{
 		var current_value = $( e.target ).val();
 		var record_id = $( e.target ).closest( selectors.record_container ).attr( 'data-record-id' );
+
 		var data_field = $( e.target ).attr( 'data-edit-field' );
-		if ( original_value != current_value )
+		var field_parts = data_field.split( "." );
+		var table = field_parts[ 0 ];
+		var field = field_parts[ 1 ];
+
+		if ( !record_id )
 		{
-			pushUpdate( data_field, current_value, record_id );
+			createNew( table, field, current_value, $( e.target ).closest( selectors.record_container ) );
+		}
+		else if ( original_value != current_value )
+		{
+			pushUpdate( table, field, current_value, record_id );
 		}
 		$( e.target ).parent().text( current_value );
 	}
 
-	function pushUpdate( data_field, value, id )
+	function pushUpdate( table, field, value, id )
 	{
+		var fields = {};
+		fields[ field ] = value;
 		var payload = {
 			action : 'update_ropc_member_info',
-			update_field : data_field,
-			value : value,
+			data_action : 'update',
+			table : table,
+			fields : fields,
 			id : id,
 		};
 		$.post( ajaxurl, payload ).fail( onSaveFail );
+	}
+
+	function createFamily( data, element, callback )
+	{
+		if ( typeof callback != 'function' )
+		{
+			callback = function(){};
+		}
+
+		if ( typeof data != 'object' )
+		{
+			data = {};
+		}
+
+		if ( ! Object.keys( data ).length )
+		{
+			data.address1 = '';
+		}
+
+		var payload = {
+			action : 'update_ropc_member_info',
+			data_action : 'create',
+			table : 'ropc_family',
+			fields : data,
+		};
+
+		$.post( ajaxurl, payload, function( data )
+		{
+			if ( data.id )
+			{
+				$( element ).attr( 'data-record-id', data.id );
+				callback( data.id );
+			}
+		} ).fail( onSaveFail );
+	}
+
+	function createPerson( data, element, callback )
+	{
+		if ( typeof callback != 'function' )
+		{
+			callback = function(){};
+		}
+
+		if ( typeof data != 'object' )
+		{
+			data = {};
+		}
+
+		data.family_role = $( element ).attr( 'data-family-role' );
+
+		var payload = {
+			action : 'update_ropc_member_info',
+			data_action : 'create',
+			table : 'ropc_family_member',
+			fields : data,
+		};
+
+		$.post( ajaxurl, payload, function( data )
+		{
+			if ( data.id )
+			{
+				$( element ).attr( 'data-record-id', data.id );
+				callback( data.id );
+			}
+		} ).fail( onSaveFail );
+	}
+
+	function createNew( table, field, value, element )
+	{
+		var data = {};
+		data[ field ] = value;
+		if ( table == 'ropc_family_member' )
+		{
+			var family_id = element.parents( selectors.record_container ).attr( 'data-record-id' );
+			if ( ! family_id )
+			{
+				var onFamilyCreated = function( family_id )
+				{
+					data.family_id = family_id;
+					createPerson( data, element );
+				};
+				createFamily( {}, element.parents( selectors.record_container ), onFamilyCreated );
+			}
+			else
+			{
+				data.family_id = family_id;
+				createPerson( data, element );
+			}
+		}
+		else
+		{
+			createFamily( data, element );
+		}
+	}
+
+	function onAddChildClicked( e )
+	{
+		var html = $( selectors.child_template ).html();
+		$( html ).insertBefore( e.target );
+	}
+
+	function onAddFamilyClicked( e )
+	{
+		var html = $( selectors.family_template ).html();
+		$( html ).insertBefore( e.target );
 	}
 
 	function onSaveFail()
@@ -47,6 +168,8 @@
 			+ 'again. If you continue to see this message, please notify the webmaster.' );
 	}
 
-	$( document ).on( 'click',    selectors.editable_field,            onEditableClicked );
+	$( document ).on( 'click', selectors.editable_field, onEditableClicked );
+	$( document ).on( 'click', selectors.add_child,      onAddChildClicked );
+	$( document ).on( 'click', selectors.add_family,     onAddFamilyClicked );
 
 }( jQuery ));
