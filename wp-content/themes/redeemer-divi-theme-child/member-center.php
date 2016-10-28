@@ -6,13 +6,17 @@
 
 get_header();
 
-error_reporting(E_ALL); ini_set("display_errors", 1);
-
-?>
-
-<?php function _member_center_display_person( array $person, $is_parent = TRUE )
+/**
+ * @brief
+ *	Renders a person
+ *
+ * @param array $family (can be an empty array)
+ *
+ * @retval string
+ *	The HTML to display the family
+ */
+function _member_center_display_person( array $person, $can_edit )
 {
-	$can_edit = TRUE;
 	$person += [
 		'first_name' => '',
 		'last_name' => '',
@@ -26,6 +30,8 @@ error_reporting(E_ALL); ini_set("display_errors", 1);
 	];
 	extract( $person );
 
+	$is_parent = in_array( $family_role, [ '', 'husband', 'wife' ] );
+	
  /* BEGIN person template */ ?>
 
 <div class="person" data-family-role="<?php echo $family_role ?>" data-record-id="<?php echo $mem_id ?>">
@@ -48,9 +54,18 @@ error_reporting(E_ALL); ini_set("display_errors", 1);
 
 <? /* END person template */ } ?>
 
-<?php function _member_center_display_family( array $family )
+<?php
+/**
+ * @brief
+ *	Renders an entire family
+ *
+ * @param array $family (can be an empty array)
+ *
+ * @retval string
+ *	The HTML to display the family
+ */
+function _member_center_display_family( array $family, $can_edit )
 {
-	$can_edit = TRUE;
 	$family += [
 		'fam_id' => '',
 		'address1' => '',
@@ -67,6 +82,7 @@ error_reporting(E_ALL); ini_set("display_errors", 1);
 		'zip' => '',
 		'name_fl' => 'New Family',
 		'name_lf' => 'New Family',
+		'picture_id' => 0,
 	];
 	extract( $family );
 
@@ -76,7 +92,7 @@ error_reporting(E_ALL); ini_set("display_errors", 1);
 	{
 		if ( $parent[ 'family_role' ] == 'husband' )
 		{
-			$husband = $parent;
+			$husband = $parent; 
 		}
 		else
 		{
@@ -86,10 +102,25 @@ error_reporting(E_ALL); ini_set("display_errors", 1);
 
  /* BEGIN family template */ ?>
 
-<h2><?php echo $name_fl ?></h2>
-<div class="css-table" data-record-id="<?php echo $fam_id ?>">
-	<div class="css-row">
-		<div class="css-cell family-cell">
+	<tr>
+		<td colspan=2>
+			<h2><?php echo $name_fl ?></h2>
+		</td>
+	</tr>
+	<tr data-record-id="<?php echo $fam_id ?>">
+		<td class="family-cell">
+			<?php if ( $picture_id ): ?>
+				<?php $pic_info = wp_get_attachment_image_src( $picture_id ) ?>
+				<?php if ( is_array( $pic_info ) ): ?>
+				<img src="<?php echo $pic_info[ 0 ] ?>"/>
+				<?php endif ?>
+			<?php endif ?>
+			<form data-role="family-upload" method="post" action="#" enctype="multipart/form-data" >
+				<input type="file" name="family_image">
+				<input type="hidden" name="action" value="update_ropc_picture">
+				<input type="hidden" name="family_id" value="<?php echo $fam_id ?>">
+				<input name="upload-image" type="submit" value="upload">
+			</form>
 			<?php if ( $can_edit || $address1 ) : ?>
 				<span data-placeholder="Address line 1" data-edit-field="ropc_family.address1"><?php echo $address1 ?></span><br>
 			<?php endif ?>
@@ -111,45 +142,74 @@ error_reporting(E_ALL); ini_set("display_errors", 1);
 			<?php if ( $can_edit || $anniversary ): ?>
 				<div class="person-anniversary">Anniversary: <span data-placeholder="Anniversary" data-edit-field="ropc_family.anniversary"><?php echo $anniversary ? date( 'F d', strtotime( $anniversary ) ) : '' ?></span></div>
 			<?php endif ?>
-			</div>
-		<div class="css-cell people-cell">
+		</td>
+		<td class="people-cell">
 			<?php if ( $can_edit || $husband ): ?>
-				<?php if ( $can_edit && ! $husband ): ?>
+				<?php if ( $can_edit && count( $husband ) <= 1 ): ?>
 					<i>Husband, or member info if single male:</i>
 				<?php endif ?>
-				<?php echo _member_center_display_person( $husband ) ?>
+				<?php echo _member_center_display_person( $husband, $can_edit ) ?>
 			<?php endif ?>
 			<?php if ( $can_edit || $wife ): ?>
-				<?php if ( $can_edit && ! $wife ): ?>
+				<?php if ( $can_edit && count( $wife ) <= 1 ) : ?>
 					<i>Wife, or member info if single female:</i>
 				<?php endif ?>
-				<?php echo _member_center_display_person( $wife ) ?>
+				<?php echo _member_center_display_person( $wife, $can_edit ) ?>
 			<?php endif ?>
 			<?php foreach ( $children as $child ): ?>
-				<?php echo _member_center_display_person( $child, FALSE ) ?>
+				<?php echo _member_center_display_person( $child, $can_edit ) ?>
 			<?php endforeach ?>
 			<?php if ( $can_edit ): ?>
 			<button class="button add-child">Add child</button>
 			<div class="hidden child-template">
-				<?php echo _member_center_display_person( [ 'family_role' => 'child' ], FALSE ) ?>
+				<?php echo _member_center_display_person( [ 'family_role' => 'child' ], TRUE ) ?>
 			</div>
 			<?php endif ?>
-		</div>
-	</div>
-</div><? /* END family template */ } ?>
+		</td>
+	</tr>
+<? /* END family template */ } ?>
 
-<pre><?php echo print_r( ropc_get_families() ) ?></pre>
+<pre><?php //echo print_r( ropc_get_families() ) ?></pre>
 
+<?php $can_edit = RopcFamilies::can_edit(); ?>
 <div id="main-content">
-This page is currently under development.
-<?php foreach ( ropc_get_families() as $family ): ?>
-	<?php echo _member_center_display_family( $family ); ?>
+	This page is currently under development.
+	<table class="families-table">
+	<?php foreach ( ropc_get_families() as $family ): ?>
+		<?php echo _member_center_display_family( $family, $can_edit ); ?>
+	<?php endforeach ?>
+	<?php if ( $can_edit ): ?>
+	</table>
+	<br>
 	<button class="button add-family">Add family</button>
-	<div class="hidden family-template">
-		<?php echo _member_center_display_family( [] ); ?>
-	</div>
-<?php endforeach ?>
+	<table class="hidden family-template">
+		<?php echo _member_center_display_family( [], TRUE ); ?>
+	</table>
+	<?php endif ?>
+	
 
+	<div id="output1"></div>
+	<script>
+	jQuery(document).ready(function() { 
+		var options = { 
+			target:        '#output1',      // target element(s) to be updated with server response 
+			beforeSubmit:  showRequest,     // pre-submit callback 
+			success:       showResponse,    // post-submit callback 
+			url:    ajaxurl                 // since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php     
+		}; 
+
+		// bind form using 'ajaxForm' 
+		jQuery('#thumbnail_upload').ajaxForm(options); 
+	});
+	function showRequest(formData, jqForm, options) {
+	//do extra stuff before submit like disable the submit button
+	jQuery('#output1').html('Sending...');
+	jQuery('#submit-ajax').attr("disabled", "disabled");
+	}
+	function showResponse(responseText, statusText, xhr, $form)  {
+			jQuery('#submit-ajax').attr("disabled", null);
+	}
+	</script>
 </div> <!-- #main-content -->
 
 <?php get_footer(); ?>

@@ -7,6 +7,15 @@ Author: Will Groenendyk
 
 class RopcFamilies
 {
+	/**
+	 * Determines if the current user can edit the families info
+	 */
+	public static function can_edit()
+	{
+		$user = wp_get_current_user();
+		return (bool) array_intersect( [ 'editor', 'administrator' ], (array) $user->roles );
+	}
+	
 	/*--------------------------------------------*
 	 * Constructor
 	 *--------------------------------------------*/
@@ -24,6 +33,7 @@ class RopcFamilies
 		add_action( 'wp_enqueue_scripts', array( &$this, 'register_plugin_scripts' ) );
 
 		add_action( 'wp_ajax_update_ropc_member_info', array( &$this, 'update_ropc_member_info' ) );
+		add_action( 'wp_ajax_update_ropc_picture', array( &$this, 'update_ropc_picture' ) );
 
 	} // end constructor
 
@@ -32,8 +42,12 @@ class RopcFamilies
 	 */
 	public function register_plugin_styles()
 	{
-		wp_register_style( 'ropc_families', plugins_url( 'ropc-families/css/plugin.css' ) );
-		wp_enqueue_style( 'ropc_families' );
+		if ( static::can_edit() )
+		{
+			wp_register_style( 'ropc_families_edit', plugins_url( 'ropc-families/css/edit.css' ) );
+			wp_enqueue_script( 'jquery-form', [ 'jquery' ], FALSE, TRUE ); 
+			wp_enqueue_style( 'ropc_families_edit' );
+		}
 
 	} // end register_plugin_styles
 
@@ -42,8 +56,11 @@ class RopcFamilies
 	 */
 	public function register_plugin_scripts()
 	{
-		wp_register_script( 'ropc-families', plugins_url( 'ropc-families/js/plugin.js' ), array( 'jquery' ) );
-		wp_enqueue_script( 'ropc-families' );
+		if ( static::can_edit() )
+		{
+			wp_register_script( 'ropc-families-edit', plugins_url( 'ropc-families/js/plugin.js' ), array( 'jquery' ) );
+			wp_enqueue_script( 'ropc-families-edit' );
+		}
 
 	} // end register_plugin_scripts
 
@@ -61,8 +78,7 @@ class RopcFamilies
 
 	public function update_ropc_member_info()
 	{
-		$user = wp_get_current_user();
-		if ( ! array_intersect( [ 'editor', 'administrator' ], (array) $user->roles ) )
+		if ( !static::can_edit() )
 		{
 			header( 'HTTP/1.1 403 Forbidden' );
 			echo "You are not authorized to perform this action";
@@ -141,6 +157,34 @@ class RopcFamilies
 
 		header( 'HTTP/1.1 400 Bad request' );
 		echo "Invalid action '$data_action'";
+		exit;
+	}
+	
+	public function update_ropc_picture()
+	{
+		//check_ajax_referer('upload_thumb');
+	
+		$family_id = $_POST[ 'family_id' ];
+		global $wpdb;
+
+		//require the needed files
+		require_once(ABSPATH . "wp-admin" . '/includes/image.php');
+		require_once(ABSPATH . "wp-admin" . '/includes/file.php');
+		require_once(ABSPATH . "wp-admin" . '/includes/media.php');
+		//then loop over the files that were sent and store them using  media_handle_upload();
+		if ($_FILES) {
+			foreach ($_FILES as $file => $array) {
+				if ($_FILES[$file]['error'] !== UPLOAD_ERR_OK) {
+					echo "upload error : " . $_FILES[$file]['error'];
+					die();
+				}
+				$attach_id = media_handle_upload( $file, $post_id );
+				
+				$wpdb->update( 'ropc_family', [ 'picture_id' => $attach_id  ], [ 'id' => $family_id ] );
+			}   
+		}
+		
+		echo print_r( wp_get_attachment_image_src( $attach_id ) ) . "\n...";
 		exit;
 	}
 

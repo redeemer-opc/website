@@ -12,30 +12,11 @@
  Text Domain:  redeemer-divi-theme-child
 */
 
-.css-table
-{
-	display: table;
-}
-
-.css-row
-{
-	display: table-row;
-}
-
-.css-cell
-{
-	display: table-cell;
-}
-
 .family-cell,
 .people-cell
 {
+	vertical-align: top;
 	padding: 5px;
-}
-
-.person
-{
-
 }
 
 .person-name
@@ -48,32 +29,7 @@
 	margin-bottom: 10px;
 }
 
-[data-placeholder]:empty:after
-{
-	color: #666;
-	content: "[" attr(data-placeholder) "]"
-}
-
 .hidden
 {
 	display: none;
-}
-
-.button
-{
-	background: #FFF;
-	border: 1px solid #999;
-	padding: 10px 15px;
-	cursor: pointer;
-}
-
-.button:hover
-{
-	background: #CCC;
-}
-
-.button:active
-{
-	background: #FFF;
-	box-shadow: 2px 2px 5px #CCC inset;
 }

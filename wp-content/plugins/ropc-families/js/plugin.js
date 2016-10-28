@@ -7,6 +7,9 @@
 		add_family : '.add-family',
 		child_template : '.child-template:first',
 		family_template : '.family-template:first',
+		families_table : '.families-table',
+		upload_image_form : '[data-role=family-upload]',
+		upload_image_submit : '[name=upload-image]',
 	};
 
 	function onEditableClicked( e )
@@ -159,7 +162,8 @@
 	function onAddFamilyClicked( e )
 	{
 		var html = $( selectors.family_template ).html();
-		$( html ).insertBefore( e.target );
+		$( html ).find( selectors.upload_image_form ).ajaxForm( options );
+		$( html ).appendTo( selectors.families_table );
 	}
 
 	function onSaveFail()
@@ -168,6 +172,26 @@
 			+ 'again. If you continue to see this message, please notify the webmaster.' );
 	}
 
+	function preRequest( formData, jqForm, options )
+	{
+		jqForm.find( selectors.upload_image_submit ).attr( 'disabled', 'disabled' );
+		var family_id = jqForm.closest( '[data-record-id]' );
+		jqForm.find( '[name=family_id]' ).val( family_id );
+	}
+	
+	function responseReceived( responseText, statusText, xhr, jqForm )
+	{
+		jqForm.find( selectors.upload_image_submit ).attr( 'disabled', null );
+	}
+	
+	var options = { 
+		beforeSubmit:  preRequest,   // pre-submit callback 
+		success:       responseReceived,  // post-submit callback 
+		//url:           ajaxurl        // since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php     
+	}; 
+
+	$( function(){ options.url = ajaxurl; $( selectors.upload_image_form ).ajaxForm( options ) } ); 
+	
 	$( document ).on( 'click', selectors.editable_field, onEditableClicked );
 	$( document ).on( 'click', selectors.add_child,      onAddChildClicked );
 	$( document ).on( 'click', selectors.add_family,     onAddFamilyClicked );
