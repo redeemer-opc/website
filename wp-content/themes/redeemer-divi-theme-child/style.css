@@ -16,7 +16,33 @@
 .people-cell
 {
 	vertical-align: top;
-	padding: 5px;
+}
+
+.families-table
+{
+	table-layout: fixed;
+	border-spacing: 20px;
+	width: calc( 100% - 100px );
+	margin: 0 50px;
+	border-collapse: separate;
+}
+
+.families-table td
+{
+	width: 100%;
+	position: relative;
+}
+
+.family-pic
+{
+	width: 100%;
+	box-shadow: 0 0 10px #000;
+	margin-bottom: 20px;
+}
+
+.picture-caption
+{
+	font-style: italic;
 }
 
 .person-name

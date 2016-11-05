@@ -4,7 +4,7 @@
  *
  */
 
-get_header();
+
 
 /**
  * @brief
@@ -49,7 +49,7 @@ function _member_center_display_person( array $person, $can_edit )
 		<span class="maiden-name">(<span data-placeholder="Maiden name" data-edit-field="ropc_family_member.maiden_name"><?php echo $maiden_name ?></span>)</span>
 		<?php endif ?>
 		<?php if ( $can_edit ): ?>
-			<span class="delete-person fa fa-trash"></span>
+			<span class="delete-person delete-btn fa fa-trash"></span>
 		<?php endif ?>
 	</div>
 	<?php if ( $birthday || $can_edit ): ?>
@@ -121,7 +121,7 @@ function _member_center_display_family( array $family, $can_edit )
 		<td colspan=2>
 			<h2><?php echo $name_fl ?>
 			<?php if ( $can_edit ): ?>
-				<span class="delete-family fa fa-trash"></span>
+				<span class="delete-family delete-btn fa fa-trash"></span>
 			<?php endif ?>
 			</h2>
 		</td>
@@ -129,8 +129,10 @@ function _member_center_display_family( array $family, $can_edit )
 	<tr data-record-id="<?php echo $fam_id ?>">
 		<td class="family-cell">
 			<?php if ( $can_edit || $picture_id ): ?>
-				<?php $pic_info = wp_get_attachment_image_src( $picture_id ) ?>
-				<img class="family-pic" src="<?php echo is_array( $pic_info ) ? $pic_info[ 0 ] : '' ?>"/>
+				<?php $pic_info_thumb = wp_get_attachment_image_src( $picture_id ) ?>
+				<?php $pic_info_full = wp_get_attachment_image_src( $picture_id, 'large' ) ?>
+				<img class="family-pic" style="background: url(<?php echo is_array( $pic_info_thumb ) ? $pic_info_thumb[ 0 ] : '' ?>)"
+					src="<?php echo is_array( $pic_info_full ) ? $pic_info_full[ 0 ] : '' ?>"/>
 			<?php endif ?>
 			<?php if ( $can_edit ): ?>
 			<form data-role="family-upload" method="post" action="#" enctype="multipart/form-data" >
@@ -190,20 +192,23 @@ function _member_center_display_family( array $family, $can_edit )
 
 <pre><?php //echo print_r( ropc_get_families() ) ?></pre>
 
+
+<?php get_header() ?>
+
 <?php $can_edit = RopcFamilies::can_edit(); ?>
 <div id="main-content">
 	This page is currently under development.
 	<table class="families-table">
-	<?php foreach ( ropc_get_families() as $family ): ?>
-		<?php echo _member_center_display_family( $family, $can_edit ); ?>
-	<?php endforeach ?>
+		<?php foreach ( ropc_get_families() as $family ): ?>
+			<?php echo _member_center_display_family( $family, $can_edit ); ?>
+		<?php endforeach ?>
+	</table>
 	<?php if ( $can_edit ): ?>
-	</table>
-	<br>
-	<button class="button add-family">Add family</button>
-	<table class="hidden family-template">
-		<?php echo _member_center_display_family( [], TRUE ); ?>
-	</table>
+		<br>
+		<button class="button add-family">Add family</button>
+		<table class="hidden family-template">
+			<?php echo _member_center_display_family( [], TRUE ); ?>
+		</table>
 	<?php endif ?>
 </div> <!-- #main-content -->
 

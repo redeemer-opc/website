@@ -123,16 +123,20 @@ class RopcFamilies
 			}, $_POST[ 'fields' ] );
 			unset( $fields[ 'id' ] );
 			
-			if ( isset( $fields[ 'birthday' ] ) )
+			foreach ( [ 'birthday', 'anniversary' ] as $date_field )
 			{
-				$birthday_unix_timestamp = strtotime( $fields[ 'birthday' ] );
-				$fields[ 'birthday' ] = $birthday_unix_timestamp
-					? date( "Y-m-d H:i:s", $birthday_unix_timestamp )
-					: NULL;
-				$response_data[ 'birthday' ] = $birthday_unix_timestamp
-					? date( "F j", $birthday_unix_timestamp )
-					: NULL;
+				if ( isset( $fields[ $date_field ] ) )
+				{
+					$unix_timestamp = strtotime( $fields[ $date_field ] );
+					$fields[ $date_field ] = $unix_timestamp
+						? date( "Y-m-d H:i:s", $unix_timestamp )
+						: NULL;
+					$response_data[ $date_field ] = $unix_timestamp
+						? date( "F j", $unix_timestamp )
+						: NULL;
+				}
 			}
+
 		}
 		
 		if ( in_array( $data_action, [ 'delete', 'update' ] ) )
@@ -202,8 +206,6 @@ class RopcFamilies
 	
 	public function update_ropc_picture()
 	{
-		//check_ajax_referer('upload_thumb');
-	
 		$family_id = $_POST[ 'family_id' ];
 		global $wpdb;
 
@@ -224,7 +226,10 @@ class RopcFamilies
 			}   
 		}
 		
-		wp_send_json( wp_get_attachment_image_src( $attach_id ) );
+		wp_send_json( [
+			'thumb' => wp_get_attachment_image_src( $attach_id ),
+			'full' => wp_get_attachment_image_src( $attach_id, 'large' ),			
+		] );
 	}
 
 } // end class

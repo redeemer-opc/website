@@ -10,21 +10,45 @@
 	color: #000;
 }
 
-.button:hover
+.button:hover:not([data-disabled=disabled])
 {
 	background: #CCC;
 }
 
-.button:active
+.button:active:not([data-disabled=disabled])
 {
 	background: #FFF;
 	box-shadow: 2px 2px 5px #CCC inset;
+}
+
+.button[data-disabled=disabled]
+{
+	cursor: not-allowed;
+	color: #AAA;
 }
 
 [data-placeholder]:empty:after
 {
 	color: #666;
 	content: "[" attr(data-placeholder) "]"
+}
+
+input[data-edit-field]
+{
+	border: none;
+	box-shadow: 0 0 10px -1px #000;
+	padding: 3px 5px;
+}
+
+.delete-btn
+{
+	padding: 5px 10px;
+	cursor: pointer;
+}
+
+.delete-btn:hover
+{
+	background: #CCC;
 }
 
 .loader-container
