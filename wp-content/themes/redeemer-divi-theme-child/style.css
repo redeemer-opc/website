@@ -33,3 +33,14 @@
 {
 	display: none;
 }
+
+.maiden-name
+{
+	font-weight: normal;
+}
+
+.picture-caption
+{
+	display: inline-block;
+	margin-bottom: 10px;
+}

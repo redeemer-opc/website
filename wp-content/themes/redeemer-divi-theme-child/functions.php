@@ -24,6 +24,7 @@ function ropc_get_families()
 		'home_phone',
 		'fam_id',
 		'picture_id',
+		'picture_caption',
 	];
 	static $person_attrs = [
 		'first_name',
@@ -60,7 +61,8 @@ function ropc_get_families()
 			cellphone,
 			type,
 			maiden_name,
-			picture_id
+			picture_id,
+			picture_caption
 		FROM ropc_family
 			INNER JOIN ropc_family_member ON ropc_family.id = family_id'
 	);

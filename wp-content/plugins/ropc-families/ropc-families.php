@@ -58,6 +58,10 @@ class RopcFamilies
 	{
 		if ( static::can_edit() )
 		{
+			wp_register_script( 'fontawesome', 'https://use.fontawesome.com/b2e4717b55.js' );
+			wp_enqueue_script( 'fontawesome' );
+			wp_register_script( 'inputmask', plugins_url( 'ropc-families/js/jquery.inputmask.bundle.min.js' ) );
+			wp_enqueue_script( 'inputmask' );
 			wp_register_script( 'ropc-families-edit', plugins_url( 'ropc-families/js/plugin.js' ), array( 'jquery' ) );
 			wp_enqueue_script( 'ropc-families-edit' );
 		}
@@ -85,6 +89,8 @@ class RopcFamilies
 			exit;
 		}
 
+		$response_data = [];
+		
 		if ( !isset( $_POST[ 'data_action' ] ) )
 		{
 			header( 'HTTP/1.1 400 Bad request' );
@@ -101,28 +107,47 @@ class RopcFamilies
 		}
 		$table = $_POST[ 'table' ];
 
-		if ( !isset( $_POST[ 'fields' ] ) || !is_array( $_POST[ 'fields' ] ) )
+		$fields = [];
+		$id = '';
+		if ( in_array( $data_action, [ 'update', 'create' ] ) )
 		{
-			header( 'HTTP/1.1 400 Bad request' );
-			echo "'fields' parameter is invalid or missing";
-			exit;
+			if ( !isset( $_POST[ 'fields' ] ) || !is_array( $_POST[ 'fields' ] ) )
+			{
+				header( 'HTTP/1.1 400 Bad request' );
+				echo "'fields' parameter is invalid or missing";
+				exit;
+			}
+			$fields = array_map( function( $val )
+			{
+				return trim( $val ) ?: NULL;
+			}, $_POST[ 'fields' ] );
+			unset( $fields[ 'id' ] );
+			
+			if ( isset( $fields[ 'birthday' ] ) )
+			{
+				$birthday_unix_timestamp = strtotime( $fields[ 'birthday' ] );
+				$fields[ 'birthday' ] = $birthday_unix_timestamp
+					? date( "Y-m-d H:i:s", $birthday_unix_timestamp )
+					: NULL;
+				$response_data[ 'birthday' ] = $birthday_unix_timestamp
+					? date( "F j", $birthday_unix_timestamp )
+					: NULL;
+			}
 		}
-		$fields = array_map( function( $val )
+		
+		if ( in_array( $data_action, [ 'delete', 'update' ] ) )
 		{
-			return trim( $val ) ?: NULL;
-		}, $_POST[ 'fields' ] );
-		unset( $fields[ 'id' ] );
+			if ( !isset( $_POST[ 'id' ] ) || !is_scalar( $_POST[ 'id' ] ) )
+			{
+				header( 'HTTP/1.1 400 Bad request' );
+				echo "'id' parameter is invalid or missing";
+				exit;
+			}
+			$id = $_POST[ 'id' ];		
+		}
 
 		if ( $data_action == 'update' )
 		{
-			if ( !isset( $_POST[ 'id' ] ) )
-			{
-				header( 'HTTP/1.1 400 Bad request' );
-				echo "No 'id' parameter given";
-				exit;
-			}
-			$id = $_POST[ 'id' ];
-
 			try
 			{
 				global $wpdb;
@@ -135,8 +160,7 @@ class RopcFamilies
 				exit;
 			}
 
-			echo "Updated successfully";
-			exit;
+			wp_send_json( $response_data + $fields );
 		}
 		else if ( $data_action == 'create' )
 		{
@@ -152,9 +176,25 @@ class RopcFamilies
 				exit;
 			}
 
-			wp_send_json( [ 'id' => $wpdb->insert_id ] );
+			$fields[ 'id' ] = $wpdb->insert_id;
+			wp_send_json( $response_data + $fields );
 		}
+		else if ( $data_action == 'delete' )
+		{
+			try
+			{
+				global $wpdb;
+				$wpdb->delete( $table, [ 'id' => $id] );
+			}
+			catch ( Exception $e )
+			{
+				header( 'HTTP/1.1 500 Internal server error' );
+				echo "problem";//$e->message();
+				exit;
+			}
 
+			wp_send_json( $response_data + [ 'success' => TRUE ] );
+		}
 		header( 'HTTP/1.1 400 Bad request' );
 		echo "Invalid action '$data_action'";
 		exit;
@@ -184,8 +224,7 @@ class RopcFamilies
 			}   
 		}
 		
-		echo print_r( wp_get_attachment_image_src( $attach_id ) ) . "\n...";
-		exit;
+		wp_send_json( wp_get_attachment_image_src( $attach_id ) );
 	}
 
 } // end class

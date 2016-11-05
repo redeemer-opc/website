@@ -20,6 +20,7 @@ function _member_center_display_person( array $person, $can_edit )
 	$person += [
 		'first_name' => '',
 		'last_name' => '',
+		'maiden_name' => '',
 		'cellphone' => '',
 		'occupation' => '',
 		'email' => '',
@@ -35,11 +36,24 @@ function _member_center_display_person( array $person, $can_edit )
  /* BEGIN person template */ ?>
 
 <div class="person" data-family-role="<?php echo $family_role ?>" data-record-id="<?php echo $mem_id ?>">
+	<?php if ( $can_edit && !$mem_id ): ?>
+		<?php if ( $family_role == 'husband' ): ?>
+		<i>Husband, or member info if single male:</i>
+		<?php elseif ( $family_role == 'wife' ): ?>
+		<i>Wife, or member info if single female:</i>
+		<?php endif ?>
+	<?php endif ?>
 	<div class="person-name"><span data-placeholder="First name" data-edit-field="ropc_family_member.first_name"><?php echo $first_name ?></span>
 		<span data-placeholder="Last name" data-edit-field="ropc_family_member.last_name"><?php echo $last_name ?></span>
+		<?php if ( $family_role == 'wife' && ( $maiden_name || $can_edit ) ): ?>
+		<span class="maiden-name">(<span data-placeholder="Maiden name" data-edit-field="ropc_family_member.maiden_name"><?php echo $maiden_name ?></span>)</span>
+		<?php endif ?>
+		<?php if ( $can_edit ): ?>
+			<span class="delete-person fa fa-trash"></span>
+		<?php endif ?>
 	</div>
 	<?php if ( $birthday || $can_edit ): ?>
-		<div class="person-bd">Birthday: <span data-placeholder="Birthday" data-edit-field="ropc_family_member.birthday"><?php echo $birthday ? date( 'F d', strtotime( $birthday ) ) : '' ?></span></div>
+		<div class="person-bd">Birthday: <span data-placeholder="Birthday" data-edit-field="ropc_family_member.birthday"><?php echo $birthday ? date( 'F j', strtotime( $birthday ) ) : '' ?></span></div>
 	<?php endif ?>
 	<?php if ( $is_parent && ( $occupation || $can_edit ) ): ?>
 		<div class="person-occupation">Occupation: <span data-placeholder="Occupation" data-edit-field="ropc_family_member.occupation"><?php echo $occupation ?></span></div>
@@ -83,6 +97,7 @@ function _member_center_display_family( array $family, $can_edit )
 		'name_fl' => 'New Family',
 		'name_lf' => 'New Family',
 		'picture_id' => 0,
+		'picture_caption' => '',
 	];
 	extract( $family );
 
@@ -104,23 +119,33 @@ function _member_center_display_family( array $family, $can_edit )
 
 	<tr>
 		<td colspan=2>
-			<h2><?php echo $name_fl ?></h2>
+			<h2><?php echo $name_fl ?>
+			<?php if ( $can_edit ): ?>
+				<span class="delete-family fa fa-trash"></span>
+			<?php endif ?>
+			</h2>
 		</td>
 	</tr>
 	<tr data-record-id="<?php echo $fam_id ?>">
 		<td class="family-cell">
-			<?php if ( $picture_id ): ?>
+			<?php if ( $can_edit || $picture_id ): ?>
 				<?php $pic_info = wp_get_attachment_image_src( $picture_id ) ?>
-				<?php if ( is_array( $pic_info ) ): ?>
-				<img src="<?php echo $pic_info[ 0 ] ?>"/>
-				<?php endif ?>
+				<img class="family-pic" src="<?php echo is_array( $pic_info ) ? $pic_info[ 0 ] : '' ?>"/>
 			<?php endif ?>
+			<?php if ( $can_edit ): ?>
 			<form data-role="family-upload" method="post" action="#" enctype="multipart/form-data" >
-				<input type="file" name="family_image">
+				<label class="family-image button">
+					<input type="file" class="hidden" name="family_image">
+					<span class="label-text"><?php echo $picture_id ? "Change" : "Add" ?> picture</span>
+				</label>	
 				<input type="hidden" name="action" value="update_ropc_picture">
 				<input type="hidden" name="family_id" value="<?php echo $fam_id ?>">
-				<input name="upload-image" type="submit" value="upload">
+				
 			</form>
+			<?php endif ?>
+			<?php if ( $can_edit || $picture_caption ): ?>
+			<span class="picture-caption" data-placeholder="Picture caption" data-edit-field="ropc_family.picture_caption"><?php echo $picture_caption ?></span><br>
+			<?php endif ?>
 			<?php if ( $can_edit || $address1 ) : ?>
 				<span data-placeholder="Address line 1" data-edit-field="ropc_family.address1"><?php echo $address1 ?></span><br>
 			<?php endif ?>
@@ -145,16 +170,10 @@ function _member_center_display_family( array $family, $can_edit )
 		</td>
 		<td class="people-cell">
 			<?php if ( $can_edit || $husband ): ?>
-				<?php if ( $can_edit && count( $husband ) <= 1 ): ?>
-					<i>Husband, or member info if single male:</i>
-				<?php endif ?>
 				<?php echo _member_center_display_person( $husband, $can_edit ) ?>
 			<?php endif ?>
 			<?php if ( $can_edit || $wife ): ?>
-				<?php if ( $can_edit && count( $wife ) <= 1 ) : ?>
-					<i>Wife, or member info if single female:</i>
-				<?php endif ?>
-				<?php echo _member_center_display_person( $wife, $can_edit ) ?>
+				<?php echo _member_center_display_person( $wife + [ 'family_role' => 'wife' ], $can_edit ) ?>
 			<?php endif ?>
 			<?php foreach ( $children as $child ): ?>
 				<?php echo _member_center_display_person( $child, $can_edit ) ?>
@@ -186,30 +205,6 @@ function _member_center_display_family( array $family, $can_edit )
 		<?php echo _member_center_display_family( [], TRUE ); ?>
 	</table>
 	<?php endif ?>
-	
-
-	<div id="output1"></div>
-	<script>
-	jQuery(document).ready(function() { 
-		var options = { 
-			target:        '#output1',      // target element(s) to be updated with server response 
-			beforeSubmit:  showRequest,     // pre-submit callback 
-			success:       showResponse,    // post-submit callback 
-			url:    ajaxurl                 // since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php     
-		}; 
-
-		// bind form using 'ajaxForm' 
-		jQuery('#thumbnail_upload').ajaxForm(options); 
-	});
-	function showRequest(formData, jqForm, options) {
-	//do extra stuff before submit like disable the submit button
-	jQuery('#output1').html('Sending...');
-	jQuery('#submit-ajax').attr("disabled", "disabled");
-	}
-	function showResponse(responseText, statusText, xhr, $form)  {
-			jQuery('#submit-ajax').attr("disabled", null);
-	}
-	</script>
 </div> <!-- #main-content -->
 
 <?php get_footer(); ?>
