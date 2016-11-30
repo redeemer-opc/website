@@ -9,14 +9,20 @@
 	var selectors = {
 		add_child           : '.add-child',
 		add_family          : '.add-family',
+		all_families        : '.all-families',
 		child_template      : '.child-template:first',
 		delete_family       : '.delete-family',
 		delete_person       : '.delete-person',
 		editable_field      : '[data-edit-field]',
+		expand_picture      : '.actual-picture',
 		families_table      : '.families-table',
+		family_container    : '.family-main-container',
 		family_image        : '.family-image',
-		family_template     : '.family-template:first',
+		family_template     : '.family-template',
 		loader_container    : '.loader-container',
+		member_type         : 'select.member-type',
+		picture_overlay     : '.pic-overlay',
+		search_input        : '.search-input',
 		record_container    : '[data-record-id]',
 		upload_image_form   : '[data-role=family-upload]',
 	};
@@ -25,7 +31,7 @@
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	// Utility Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////
-
+	
 	/**
 	 * @brief
 	 *	jQuery plugin to find the next element in the DOM that matches the given selector
@@ -266,13 +272,15 @@
 	// Event Handlers
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	
-	$( document ).on( 'click',    selectors.editable_field, onEditableClicked );
-	$( document ).on( 'keydown',  selectors.editable_field, onEditableKeypressed );
-	$( document ).on( 'click',    selectors.add_child,      onAddChildClicked );
-	$( document ).on( 'click',    selectors.add_family,     onAddFamilyClicked );
-	$( document ).on( 'click',    selectors.delete_person,  onDeletePersonClicked );
-	$( document ).on( 'click',    selectors.delete_family,  onDeleteFamilyClicked );
-	$( document ).on( 'change',   selectors.family_image,   onFamilyImageChanged );
+	$( document ).on( 'click',   selectors.editable_field,  onEditableClicked );
+	$( document ).on( 'keydown', selectors.editable_field,  onEditableKeypressed );
+	$( document ).on( 'click',   selectors.add_child,       onAddChildClicked );
+	$( document ).on( 'click',   selectors.add_family,      onAddFamilyClicked );
+	$( document ).on( 'click',   selectors.delete_person,   onDeletePersonClicked );
+	$( document ).on( 'click',   selectors.delete_family,   onDeleteFamilyClicked );
+	$( document ).on( 'change',  selectors.family_image,    onFamilyImageChanged );
+	$( document ).on( 'change',  selectors.member_type,     onMemberTypeChanged )
+	$( document ).on( 'ready',                              init );
 	
 	/**
 	 * @brief
@@ -285,7 +293,7 @@
 	{
 		// Extract the field's current value, then create a textfield pre-populated with this
 		// field's current value
-		var current_value = $( e.target ).text();
+		var current_value = $( e.target ).text().trim();
 		var data_field = $( e.target ).attr( 'data-edit-field' );
 		var placeholder = $( e.target ).attr( 'data-placeholder' );
 		var new_input = $( '<input>' ).attr(  'data-edit-field', data_field )
@@ -399,19 +407,10 @@
 	{
 		// Use the new family template template to insert an empty "family" into the DOM, after the
 		// all other families
-		var html = $( $( selectors.family_template + " tr" ).parent().html() );
+		var html = $( $( selectors.family_template ).html() );
 		html.find( selectors.upload_image_form ).ajaxForm( options );
-		
-		// If other families exist in the table, insert the new family after all of the other
-		// families
-		if ( $( selectors.families_table + " tr:last" ).length )
-		{
-			$( selectors.families_table + " tr:last" ).after( html );
-		}
-		else // Otherwise, no other families exist; just insert the new family into the table
-		{
-			$( selectors.families_table ).append( html );
-		}
+		$( selectors.all_families ).append( html );
+		createFamily( undefined, html );
 	}
 	
 	/**
@@ -427,7 +426,7 @@
 		}
 	
 		// Get the family's container element and its id
-		var family = $( e.target ).closest( 'tr' ).next();
+		var family = $( e.target ).closest( selectors.family_container );
 		var family_id = family.attr( 'data-record-id' );
 
 		// Send the deletion to the server
@@ -439,9 +438,6 @@
 		};
 		$.post( ajaxurl, payload, function( data )
 		{
-			// Remove the family's container element and the table row that contains its name from
-			// the table
-			family.prev().remove();
 			family.remove();
 		} ).fail( onSaveFail );
 	}
@@ -498,6 +494,38 @@
 		$( e.target ).closest( "form" ).ajaxSubmit( options );
 	}
 
+	function onExpandPictureClicked( e )
+	{
+		var family_id = $( e.target ).closest( '[data-record-id]' ).attr( 'data-record-id' );
+		var pic_element = $( e.target ).closest( '.actual-picture' );
+		var pic_src = pic_element.attr( 'data-picture-url' );
+		var caption = pic_element.attr( 'data-picture-caption' );
+		$( 'body' ).append( '<div data-record-id="' + family_id + '" class="pic-overlay"><img src="' + pic_src + '"/>' 
+			+ '<div class="picture-caption-container"><span class="picture-caption" data-placeholder="Caption" data-edit-field="ropc_family.picture_caption">' + caption + '</span></div></div>' );
+	}
+
+	function onPictureOverlayClicked( e )
+	{
+		if ( $( e.target ).is( selectors.picture_overlay ) )
+		{
+			$( e.target ).remove();
+		}
+	}
+	
+	function onMemberTypeChanged( e )
+	{
+		var member_id = $( e.target ).closest( '[data-record-id]' ).attr( 'data-record-id' );
+		pushUpdate( 'ropc_family_member', 'type', $( e.target ).val(), member_id );
+	}
+	
+	function init()
+	{
+		$( selectors.editable_field ).each( function( i, element )
+		{
+			$( element ).text( $( element ).text().trim() );
+		} );
+	}
+
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// Ajax Form Config
 	///////////////////////////////////////////////////////////////////////////////////////////////	
@@ -527,13 +555,26 @@
 			var family_id = form.find( '[name=family_id]' ).val();
 			if ( ! family_id )
 			{
-				createFamily( {}, form.parents( selectors.record_container ), function( id )
+				if ( form.closest( '[data-record-id]' ).length )
 				{
-					form.find( '[name=family_id]' ).val( id );
-					form.submit();
-				} );
+					for ( var i in data )
+					{
+						if ( data[ i ].name == 'family_id' )
+						{
+							 data[ i ].value = form.closest( '[data-record-id]' ).attr( 'data-record-id' );
+						}
+					}
+				}
+				else
+				{
+					createFamily( {}, form.parents( selectors.record_container ), function( id )
+					{
+						form.find( '[name=family_id]' ).val( id );
+						form.submit();
+					} );
 				
-				return false;
+					return false;
+				}
 			}
 		},
 
@@ -552,6 +593,7 @@
 			form.find( selectors.family_image )
 				.find( '[type=file]' ) 
 				.attr( 'disabled', null )
+				.val( "" )
 				.closest( 'label' )
 				.attr( 'data-disabled', null )
 				.find( '.label-text' )
@@ -561,9 +603,12 @@
 			if ( typeof data == "object" )
 			{
 				form.closest( '[data-record-id]' )
-					.find( '.family-pic' )
-					.css( 'background', "url(" + data.thumb[ 0 ] + ")" )
-					.attr( 'src', data.full[ 0 ] );
+					.find( '.picture-backdrop-blurry-img' )
+					.css( 'background-image', "url(" + data.full[ 0 ] + ")" )
+					.closest( '[data-record-id]' )
+					.find( '.actual-picture' )
+					.attr( 'data-picture-url', data.full[ 0 ] )
+					.css( 'background-image', "url(" + data.thumb[ 0 ] + ")" );
 			}
 		},
 		// url: Populated on document.ready
