@@ -608,7 +608,9 @@
 					.closest( '[data-record-id]' )
 					.find( '.actual-picture' )
 					.attr( 'data-picture-url', data.full[ 0 ] )
-					.css( 'background-image', "url(" + data.thumb[ 0 ] + ")" );
+					.css( 'background-image', "url(" + data.thumb[ 0 ] + ")" )
+					.closest( '.no-picture' )
+					.removeClass( 'no-picture' );
 			}
 		},
 		// url: Populated on document.ready

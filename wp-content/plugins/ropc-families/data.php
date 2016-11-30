@@ -281,6 +281,8 @@ function ropc_get_birthdays( $month_n )
 			$by_day[ $day ] .= ", $name";
 		}
 	}
+	
+	ksort( $by_day, SORT_NUMERIC );
 	return $by_day;
 }
 
@@ -319,5 +321,7 @@ function ropc_get_anniversaries( $month_n )
 			$by_day[ $day ] .= ", $name";
 		}		
 	}
+	
+	ksort( $by_day, SORT_NUMERIC );
 	return $by_day;
 }

@@ -1,5 +1,5 @@
 <div class="family-main-container" data-record-id="<?php echo $fam_id ?>">
-	<div class="picture-backdrop">
+	<div class="picture-backdrop <?php echo $picture_id ? '' : 'no-picture' ?>">
 		<div class="picture-backdrop-blurry-img"
 			style="background-image: url('<?php echo $pic_src_full ?>')">
 		</div>

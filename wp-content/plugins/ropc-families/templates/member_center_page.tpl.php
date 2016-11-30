@@ -31,22 +31,28 @@
 		<div class="birthdays">
 			<div class="container">
 				<h2><?php echo $data[ 'bd_month' ] ?> Birthdays</h2>
-				<ul>
+				<table class="dates-table">
 					<?php foreach ( $data[ 'by_day' ] as $day => $people ): ?>
-					<li><?php echo $day ?>: <?php echo $people ?></li>
+					<tr>
+						<td class="date-cell"><?php echo $day ?></td>
+						<td><?php echo $people ?></td>
+					</tr>
 					<?php endforeach ?>
-				</ul>
+				</table>
 			</div>
 		</div>
 		<?php elseif ( $type == "anniversary" ): ?>
 		<div class="anniversaries">
 			<div class="container">
 				<h2><?php echo $data[ 'anniv_month' ] ?> Anniversaries</h2>
-				<ul>
+				<table class="dates-table">
 					<?php foreach ( $data[ 'by_day' ] as $day => $people ): ?>
-					<li><?php echo $day ?>: <?php echo $people ?></li>
+					<tr>
+						<td class="date-cell"><?php echo $day ?></td>
+						<td><?php echo $people ?></td>
+					</tr>
 					<?php endforeach ?>
-				</ul>
+				</table>
 			</div>
 		</div>
 	<?php endif ?>

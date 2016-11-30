@@ -210,7 +210,8 @@ class RopcFamilies
 	public function add_ajax_library()
 	{
 		$html =  '<script type="text/javascript">';
-		$html .= 'var ajaxurl = "' . admin_url( 'admin-ajax.php' ) . '"';
+		$html .= 'var ajaxurl = "' . admin_url( 'admin-ajax.php' ) . '";';
+		$html .= 'var can_edit = ' . ( static::in_edit_mode() ? 'true' : 'false' ) . ';';
 		$html .= '</script>';
 
 		echo $html;

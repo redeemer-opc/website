@@ -24,8 +24,13 @@ input[data-edit-field]
 
 .add-family-btn-container
 {
-	background: #DDD;
 	padding: 10px 0;
+	margin-top: 0;
+}
+
+#main-content .add-family-btn-container .container
+{
+	padding-top: 0;
 }
 
 .loader-container

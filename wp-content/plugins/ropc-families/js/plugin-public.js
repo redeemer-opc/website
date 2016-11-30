@@ -44,9 +44,12 @@
 		var family_id = $( e.target ).closest( '[data-record-id]' ).attr( 'data-record-id' );
 		var pic_element = $( e.target ).closest( '.actual-picture' );
 		var pic_src = pic_element.attr( 'data-picture-url' );
-		var caption = pic_element.attr( 'data-picture-caption' );
+		var caption = pic_element.attr( 'data-picture-caption' ).trim();
+		var caption_element = can_edit || caption
+			? '<span class="picture-caption" data-placeholder="Caption" data-edit-field="ropc_family.picture_caption">' + caption + '</span>'
+			: '';
 		$( 'body' ).append( '<div data-record-id="' + family_id + '" class="pic-overlay"><img src="' + pic_src + '"/>' 
-			+ '<div class="picture-caption-container"><span class="picture-caption" data-placeholder="Caption" data-edit-field="ropc_family.picture_caption">' + caption + '</span></div></div>' );
+			+ '<div class="picture-caption-container">' + caption_element + '</div></div>' );
 	}
 
 	function onPictureOverlayClicked( e )
