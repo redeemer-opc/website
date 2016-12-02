@@ -89,6 +89,7 @@ function ropc_families_display_member_center_page( $type = 'families', array $da
  *
  * @param data  $data
  * @param array $divisions
+ *	Indicates how to group the families by last name
  *
  * @retval string
  */
@@ -102,14 +103,20 @@ function ropc_families_display_navbar( array $data,	array $divisions = [ 'A', 'F
 	$search_terms = $data[ 'search_terms' ];
 	$vars[ 'divisions_processed' ] = [];
 
+	// Iterates through $divisions in order to determine the last last letter in the division as
+	// well as which division is active (if any)
 	for ( $i = 0; $i < count( $divisions ); $i ++ )
 	{
 		$start = $divisions[ $i ];
-		$end = $i + 1 < count( $divisions ) ? $divisions[ $i + 1 ] : 'Z';
+
+		$end = $i + 1 < count( $divisions )
+			? $divisions[ $i + 1 ]
+			: 'Z';
 		if ( $end != 'Z' )
 		{
 			$end = chr( ord( $end ) - 1 );
 		}
+
 		$key = "$start-$end";
 		$vars[ 'divisions_processed' ][ $key ] = [
 			'text'  => "$start - $end",
@@ -118,7 +125,9 @@ function ropc_families_display_navbar( array $data,	array $divisions = [ 'A', 'F
 				: '',
 		];
 	}
-	
+
+	// Because we'll use the search terms as an HTML attribute, escape any potentially troublesome
+	// characters
 	$vars[ 'search_safe' ] = $search_terms
 		? htmlspecialchars( $search_terms )
 		: '';

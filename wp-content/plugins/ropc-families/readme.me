@@ -1,0 +1,23 @@
+## Synopsis
+
+This plugin provides the Member Center of the website, which displays family information, as well as
+birthdays and anniversaries categorized by month.
+
+## Code Organization
+
+	* ropc-families.php   - Permission checks and request handlers
+	* render.php          - Data processors; injects processsed data into templates (see templates/*)
+	* data.php            - Data retrievers
+	* templates/*.tpl.php - HTML templates
+	* js/
+		* edit.js                        - Client-side code for MODIFYING member data
+		* view.js                        - Client-side code for VIEWING member data
+		* jquery.inputmask.bundle.min.js - Input masks, used for inputting phone numbers
+	* css/
+		* view.css - Styles used in conjunction with MODIFYING member data
+		* edit.css - Styles used in conjunction with VIEWING member data
+
+## Contributors
+
+Will Groenendyk, 2016. 
+will.groenendyk@gmail.com

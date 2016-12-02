@@ -305,7 +305,7 @@ function ropc_get_birthdays( $month_n )
 function ropc_get_anniversaries( $month_n )
 {
 	$month_n = intval( $month_n );
-	$familes = ropc_get_families( "month(anniversary) = '%s'", [ $month_n ] );
+	$familes = ropc_get_families( "month(anniversary) = %d", [ $month_n ] );
 	
 	$by_day = [];
 	foreach ( $familes as $family )
