@@ -174,13 +174,13 @@ class RopcFamilies
 	{
 		if ( static::in_edit_mode() )
 		{
-			wp_register_style( 'ropc_families_edit', plugins_url( 'ropc-families/css/edit.css' ) );
+			wp_register_style( 'ropc_families_edit', plugins_url( 'ropc-families/less/edit.css.less' ) );
 			wp_enqueue_style( 'ropc_families_edit' );
 		}
 		
 		if ( static::can_view() )
 		{
-			wp_register_style( 'ropc_families_view', plugins_url( 'ropc-families/css/view.css' ) );
+			wp_register_style( 'ropc_families_view', plugins_url( 'ropc-families/less/view.css.less' ) );
 			wp_enqueue_style( 'ropc_families_view' );			
 		}
 

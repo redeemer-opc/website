@@ -1,0 +1,491 @@
+/************************************************************************************************
+ ** Utility Classes
+ ***********************************************************************************************/
+
+.hidden
+{
+	display: none;
+}
+
+.margin-top
+{
+	margin-top: 10px;
+}
+
+.mobile-show
+{
+	display: none;
+}
+
+/************************************************************************************************
+ ** Page Styles
+ ***********************************************************************************************/
+ 
+.button
+{
+	background: #FFF;
+	border: 1px solid #999;
+	padding: 10px 15px;
+	cursor: pointer;
+	margin: 5px 0;
+	box-sizing: border-box;
+	display: inline-block;
+	color: #000;
+	
+	&:hover:not([data-disabled=disabled])
+	{
+		background: #CCC;
+	}
+	
+	&:active:not([data-disabled=disabled])
+	{
+		background: #FFF;
+		box-shadow: 2px 2px 5px #CCC inset;
+	}
+
+	&[data-disabled=disabled]
+	{
+		cursor: not-allowed;
+		color: #AAA;
+	}
+}
+
+label.button
+{
+	padding: 5px 10px;
+	margin: 0;
+}
+
+.member-center-nav
+{
+	background: #EEE;
+	padding: 0px 0 10px;
+	text-align: center;
+	
+	.nav-btn
+	{
+		margin-top: 10px;
+		display: inline-block;
+		padding: 3px 7px;
+		background: #FFF;
+		box-shadow: 0 0 5px #777;
+		position: relative;
+		
+		&:not(:last-child)
+		{
+			margin-right: 10px;
+		}
+		
+		&.hoverable:hover
+		{
+			background: #DDD;
+			color: #444;
+		}
+
+		&.birthdays-container,
+		&.anniversaries-container
+		{
+			padding-right: 3px;
+
+			select
+			{
+				margin-left: 5px;
+			}
+		}
+		
+		&.search-container input
+		{
+			border: none;
+			margin-left: 5px;
+			width: ~"calc( 100% - 25px )";
+		}
+		
+		&.active,
+		&.active input
+		{
+			background: #333;
+			color: #EEE;
+		}
+	}
+}
+
+.member-center-splash
+{
+	background: #DDD;
+}
+
+.dates-table
+{
+	width: 100%;
+	
+	.date-cell
+	{
+		width: 0;
+		text-align: right;
+	}
+
+	td
+	{
+		padding: 5px 10px;
+		width: 100%;
+	}
+	
+	tr
+	{
+		@color-1: #CCC;
+		@color-2: #EEE;
+		@date-cell-color-difference: #111;
+
+		&:nth-child(2n)
+		{
+			background: @color-1;
+			
+			.date-cell
+			{
+				background: @color-1 - @date-cell-color-difference;
+			}
+		}
+	
+		&:nth-child(2n+1)
+		{
+			background: @color-2;
+			
+			.date-cell
+			{
+				background: @color-2 - @date-cell-color-difference;
+			}
+		}
+	}
+}
+
+.family-main-container
+{
+	padding-bottom: 20px;
+	border-bottom: 1px solid #BBB;
+	
+	 .picture-backdrop
+	{
+		height: 150px;
+		width: 100%;
+		position: relative;
+		overflow: hidden;
+		border-bottom: 1px solid #BBB;
+		padding-top: 10px;
+		padding-bottom: 10px;
+		
+		.picture-backdrop-blurry-img
+		{
+			top: -20px;
+			left: -20px;
+			position: absolute;
+			-webkit-filter: blur(10px);
+			-moz-filter: blur(10px);
+			-o-filter: blur(10px);
+			-ms-filter: blur(10px);
+			filter: blur(10px);
+			background-size: cover;
+			background-position: top center;
+			width: ~"calc( 100% + 40px )";
+			height: ~"calc( 100% + 40px )";
+			
+			&:after
+			{
+				top: 0;
+				left: 0;
+				content: " ";
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(255,255,255,0.2);
+			}
+		}
+		
+		.actual-picture
+		{
+			display: inline-block;
+			position: relative;
+			background-size: cover;
+			background-position: center center;
+			box-shadow: 0 0 5px #000;
+			height: 130px;
+			width: 160px;
+			margin-right: 20px;
+			cursor: pointer;
+			
+			.expand-picture
+			{
+				position: absolute;
+				color: #DDD;
+				text-shadow: 0 0 5px #000, 0 0 5px #000;
+				padding: 5px;
+				bottom: 0;
+				right: 0;
+			}
+			
+			&:hover .expand-picture
+			{
+				text-shadow: 0 0 10px #000, 0 0 10px #000,0 0 10px #000;
+				color: #FFF;
+			}
+		}
+		
+		&.no-picture
+		{
+			background: #568259;
+			
+			 .actual-picture
+			{
+				display: none;
+			}
+		}
+		
+		.family-name
+		{
+			display: inline-block;
+			position: relative;
+			height: 100%;
+			padding-top: 50px;
+			vertical-align: top;
+			
+			h2
+			{
+				text-shadow: 0 0 30px #FFF, 0 0 30px #FFF, 0 0 30px #FFF, 0 0 30px #FFF, 0 0 30px #FFF;
+				padding: 0;
+			}
+		}
+	}
+
+	.person:not( :last-child )
+	{
+		margin-bottom: 10px;
+
+		.person-name
+		{
+			font-weight: bold;
+		}
+		
+		.maiden-name
+		{
+			font-weight: normal;
+		}
+	}
+	
+	div.member-type
+	{
+		font-style: italic;
+		color: #777;
+	}
+	
+	.family-phone:not(:first-child),
+	.family-anniversary:not(:first-child)
+	{
+		margin-top: 15px;
+	}
+	
+	.info-columns-container
+	{
+		position: relative;
+		padding-bottom: 10px;
+		display: flex;
+		align-items: flex-start;
+		
+		.info-column
+		{
+			width: ~"calc( ( 100% - 20px ) / 3)";
+			box-shadow: 0 0 5px #777; 
+			padding: 20px;
+			background: #FFF;
+			
+			&:not(:first-child)
+			{
+				margin-left: 10px;
+			}
+		}
+		
+		 .info-column.with-title
+		{
+			padding-top: 50px;
+			position: relative;
+			
+			.column-title
+			{
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				background: #777;
+				color: #DDD;
+				height: 30px;
+				padding: 5px 20px;
+				box-sizing: border-box;
+				font-weight: bold;
+			}
+		}
+	}
+}
+
+.pic-overlay
+{
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	padding: 75px;
+	box-sizing: border-box;
+	top: 0;
+	left: 0;
+	background-color: rgba(0,0,0,0.8);
+	z-index: 999999;
+	text-align: center;
+	
+	 img
+	{
+		position: relative;
+		box-shadow: 0 0 10px 3px #000;
+		max-width: 100%;
+		max-height: 100%;
+	}
+	
+	.picture-caption-container
+	{
+		position: relative;
+		width: 100%;
+		left: 0;
+		bottom: 40px;
+		text-align: center;
+	}
+	
+	.picture-caption
+	{
+		font-style: normal;
+		background: rgba(0,0,0,0.8);
+		color: #FFF;
+		padding: 5px;
+		font-size: 15px;
+	}
+}
+
+.switch-view
+{
+	position: fixed;
+	padding: 5px;
+	width: 100%;
+	bottom: 0;
+	left: 0;
+	background-color: #EEE;
+	box-shadow: 0 0 5px;
+	text-align: center;
+	z-index: 9999999;
+	
+	 .button
+	{
+		margin: 0;
+	}
+}
+
+/************************************************************************************************
+ ** Overides (which take advantage of the specficity of id selectors)
+ ***********************************************************************************************/
+
+#main-content
+{
+	.member-center-splash .container ul
+	{
+		list-style: initial;
+		padding-left: 30px;
+	}
+
+	.member-center-splash .container,
+	.birthdays .container,
+	.anniversaries .container
+	{
+		padding: 20px 0 30px;
+		font-size: 17px;
+	}
+
+	.picture-backdrop .container,
+	.member-center-nav .container
+	{
+		padding-top: 0;	
+	}
+	
+	.family-main-container .container.info-columns-container
+	{
+		padding-top: 10px;
+	}
+	
+	.container:before
+	{
+		display: none;
+	}
+}
+
+/************************************************************************************************
+ ** Mobile Overrides
+ ***********************************************************************************************/
+
+@media (max-width: 800px) 
+{	
+	.pic-overlay
+	{
+		padding: 20px;
+	}
+
+	.mobile-show
+	{
+		display: block;
+	}
+
+	#main-content
+	{
+		.picture-backdrop
+		{
+			.container
+			{
+				text-align: center;
+				
+				.actual-picture
+				{
+					display: block;
+					margin: auto;
+				}
+			}
+
+			&.no-picture .actual-picture
+			{
+				display: none;
+			}
+		}
+		
+		.family-main-container .picture-backdrop .family-name
+		{
+		display: block;
+		position: relative;
+		height: auto;
+		padding-top: 0;
+
+			.family-name h2
+			{
+				margin-top: 5px;
+				text-align: center;
+				font-size: 20px;
+			}
+		}
+	}
+	
+	.info-columns-container
+	{
+		display: block;
+		
+		 .info-column
+		{
+			display: block;
+			width: 100%;
+		}
+
+		.info-column:not(:first-child)
+		{
+			margin-top: 10px;
+			margin-left: 0;
+		}
+	}
+}

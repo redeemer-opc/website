@@ -6,10 +6,13 @@
  */
 (function( $ )
 {
+	var record_id_attr = 'data-record-id';
+
 	var selectors = {
 		add_child           : '.add-child',
 		add_family          : '.add-family',
 		all_families        : '.all-families',
+		blurry_background   : '.picture-backdrop-blurry-img',
 		child_template      : '.child-template:first',
 		delete_family       : '.delete-family',
 		delete_person       : '.delete-person',
@@ -23,11 +26,10 @@
 		member_type         : 'select.member-type',
 		picture_overlay     : '.pic-overlay',
 		search_input        : '.search-input',
-		record_container    : '[data-record-id]',
+		record_container    : '[' + record_id_attr + ']',
 		upload_image_form   : '[data-role=family-upload]',
 	};
 
-	
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	// Utility Methods
 	//////////////////////////////////////////////////////////////////////////////////////////////
@@ -126,7 +128,7 @@
 			if ( data.id )
 			{
 				// Update the family's container element with the new family id
-				$( element ).attr( 'data-record-id', data.id );
+				$( element ).attr( record_id_attr, data.id );
 				
 				hideLoader();
 				callback( data.id );
@@ -173,7 +175,7 @@
 			if ( data.id )
 			{
 				// Update the person's container element with the person's new id
-				$( element ).attr( 'data-record-id', data.id );
+				$( element ).attr( record_id_attr, data.id );
 
 				callback( data.id );
 			}
@@ -201,7 +203,7 @@
 		if ( table == 'ropc_family_member' )
 		{
 			// If this person is part of a new family
-			var family_id = element.parents( selectors.record_container ).attr( 'data-record-id' );
+			var family_id = element.parents( selectors.record_container ).attr( record_id_attr );
 			if ( ! family_id )
 			{
 				// First create the new family, then create the new person
@@ -280,7 +282,6 @@
 	$( document ).on( 'click',   selectors.delete_family,   onDeleteFamilyClicked );
 	$( document ).on( 'change',  selectors.family_image,    onFamilyImageChanged );
 	$( document ).on( 'change',  selectors.member_type,     onMemberTypeChanged )
-	$( document ).on( 'ready',                              init );
 	
 	/**
 	 * @brief
@@ -324,7 +325,7 @@
 	{
 		// Get the field's new value and record id
 		var new_value = $( e.target ).val();
-		var record_id = $( e.target ).closest( selectors.record_container ).attr( 'data-record-id' );
+		var record_id = $( e.target ).closest( selectors.record_container ).attr( record_id_attr );
 		
 		// Parse out the field's table and column name
 		var data_field = $( e.target ).attr( 'data-edit-field' );
@@ -427,7 +428,7 @@
 	
 		// Get the family's container element and its id
 		var family = $( e.target ).closest( selectors.family_container );
-		var family_id = family.attr( 'data-record-id' );
+		var family_id = family.attr( record_id_attr );
 
 		// Send the deletion to the server
 		var payload = {
@@ -455,8 +456,8 @@
 		}
 		
 		// Get the person's container element and its id
-		var person = $( e.target ).closest( '[data-record-id]' );
-		var person_id = person.attr( 'data-record-id' );
+		var person = $( e.target ).closest( selectors.record_container );
+		var person_id = person.attr( record_id_attr );
 		
 		// Send the deletion to the server
 		var payload = {
@@ -494,37 +495,18 @@
 		$( e.target ).closest( "form" ).ajaxSubmit( options );
 	}
 
-	function onExpandPictureClicked( e )
-	{
-		var family_id = $( e.target ).closest( '[data-record-id]' ).attr( 'data-record-id' );
-		var pic_element = $( e.target ).closest( '.actual-picture' );
-		var pic_src = pic_element.attr( 'data-picture-url' );
-		var caption = pic_element.attr( 'data-picture-caption' );
-		$( 'body' ).append( '<div data-record-id="' + family_id + '" class="pic-overlay"><img src="' + pic_src + '"/>' 
-			+ '<div class="picture-caption-container"><span class="picture-caption" data-placeholder="Caption" data-edit-field="ropc_family.picture_caption">' + caption + '</span></div></div>' );
-	}
-
-	function onPictureOverlayClicked( e )
-	{
-		if ( $( e.target ).is( selectors.picture_overlay ) )
-		{
-			$( e.target ).remove();
-		}
-	}
-	
+	/**
+	 * @brief
+	 *	Change handler for a person's member type
+	 *
+	 * @param Event e
+	 */
 	function onMemberTypeChanged( e )
 	{
-		var member_id = $( e.target ).closest( '[data-record-id]' ).attr( 'data-record-id' );
+		var member_id = $( e.target ).closest( selectors.record_container ).attr( record_id_attr );
 		pushUpdate( 'ropc_family_member', 'type', $( e.target ).val(), member_id );
 	}
-	
-	function init()
-	{
-		$( selectors.editable_field ).each( function( i, element )
-		{
-			$( element ).text( $( element ).text().trim() );
-		} );
-	}
+
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// Ajax Form Config
@@ -555,13 +537,14 @@
 			var family_id = form.find( '[name=family_id]' ).val();
 			if ( ! family_id )
 			{
-				if ( form.closest( '[data-record-id]' ).length )
+				if ( form.closest( selectors.record_container ).length )
 				{
 					for ( var i in data )
 					{
 						if ( data[ i ].name == 'family_id' )
 						{
-							 data[ i ].value = form.closest( '[data-record-id]' ).attr( 'data-record-id' );
+							 data[ i ].value = form.closest( selectors.record_container )
+								.attr( record_id_attr );
 						}
 					}
 				}
@@ -602,10 +585,9 @@
 			// If the server sent us information about the newly uploaded image, display that image
 			if ( typeof data == "object" )
 			{
-				form.closest( '[data-record-id]' )
-					.find( '.picture-backdrop-blurry-img' )
+				form.closest( selectors.record_container )
+					.find( selectors.blurry_background )
 					.css( 'background-image', "url(" + data.full[ 0 ] + ")" )
-					.closest( '[data-record-id]' )
 					.find( '.actual-picture' )
 					.attr( 'data-picture-url', data.full[ 0 ] )
 					.css( 'background-image', "url(" + data.thumb[ 0 ] + ")" )
@@ -616,11 +598,22 @@
 		// url: Populated on document.ready
 	};
 
-	// On document.ready, populate options.url initialize all image upload forms as Ajax forms
-	$( function()
+	/**
+	 * @brief
+	 *	On document.ready performs initialization tasks
+	 */
+	function init()
 	{
+		// Trim all leading and trailing whitespace from editable fields
+		$( selectors.editable_field ).each( function( i, element )
+		{
+			$( element ).text( $( element ).text().trim() );
+		} );
+		
+		// Populate options.url initialize all image upload forms as Ajax forms
 		options.url = ajaxurl;
 		$( selectors.upload_image_form ).ajaxForm( options )
-	} );
+	}
+	$( init );
 	
 }( jQuery ));
