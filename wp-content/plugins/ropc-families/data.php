@@ -121,6 +121,7 @@ function ropc_get_families( $condition = '', array $db_params = [] )
 		FROM ropc_family
 			INNER JOIN ropc_family_member ON ropc_family.id = family_id '
 		. $where
+		. ' ORDER BY ropc_family_member.last_name, ropc_family_member.first_name'
 	);
 
 	$families_processed = [];
