@@ -254,11 +254,10 @@ label.button
 			}
 		}
 	}
-
-	.person:not( :last-child )
+		
+	.person
 	{
-		margin-bottom: 10px;
-
+		
 		.person-name
 		{
 			font-weight: bold;
@@ -268,12 +267,18 @@ label.button
 		{
 			font-weight: normal;
 		}
-	}
-	
-	div.member-type
-	{
-		font-style: italic;
-		color: #777;
+		
+		&:not( :last-child )
+		{
+			margin-bottom: 10px;
+		}
+		
+		.member-type
+		{
+			font-style: italic;
+			color: #777;
+			font-weight: normal;
+		}
 	}
 	
 	.family-phone:not(:first-child),
@@ -281,7 +286,7 @@ label.button
 	{
 		margin-top: 15px;
 	}
-	
+
 	.info-columns-container
 	{
 		position: relative;
