@@ -65,14 +65,10 @@
 				</div>
 			<?php endif ?>
 			<?php if ( $can_edit || $city ) : ?>
-				<span data-placeholder="City" data-edit-field="ropc_family.city">
-					<?php echo $city ?>
-				</span>,
+				<span data-placeholder="City" data-edit-field="ropc_family.city"><?php echo $city ?></span>,
 			<?php endif ?>
 			<?php if ( $can_edit || $state ) : ?>
-				<span data-placeholder="State" data-edit-field="ropc_family.state">
-					<?php echo $state ?>
-				</span>,
+				<span data-placeholder="State" data-edit-field="ropc_family.state"><?php echo $state ?></span>,
 			<?php endif ?>
 			<?php if ( $can_edit || $zip ) : ?>
 				<span data-placeholder="Zip" data-edit-field="ropc_family.zip">
