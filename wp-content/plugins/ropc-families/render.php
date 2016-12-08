@@ -46,7 +46,6 @@ function ropc_families_display_person( array $person, $can_edit )
 		'occupation' => '',
 		'email' => '',
 		'birthday' => '',
-		'anniversary' => '',
 		'mem_id' => '',
 		'family_role' => '',
 		'type' => '',
@@ -61,6 +60,10 @@ function ropc_families_display_person( array $person, $can_edit )
 	];
 	
 	$vars[ 'is_parent' ] = in_array( $vars[ 'family_role' ], [ '', 'husband', 'wife' ] );
+	
+	$vars[ 'birthday' ] = $vars[ 'birthday' ]
+		? date( 'F j', strtotime( $vars[ 'birthday' ] ) )
+		: '';
 	
 	return ropc_render( 'person', $vars );
 }
@@ -198,7 +201,7 @@ function ropc_families_display_family( array $family, $can_edit )
 		: '';
 	
 	$vars[ 'anniversary' ] = $vars[ 'anniversary' ]
-		? date( 'F d', strtotime( $vars[ 'anniversary' ] ) )
+		? date( 'F j', strtotime( $vars[ 'anniversary' ] ) )
 		: '';
 	
 	$vars[ 'pic_info_full' ]  = wp_get_attachment_image_src( $vars[ 'picture_id' ], 'large' );

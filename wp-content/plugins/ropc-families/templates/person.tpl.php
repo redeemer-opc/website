@@ -40,7 +40,7 @@
 	<?php if ( $birthday || $can_edit ): ?>
 		<div class="person-bd">Birthday:
 			<span data-placeholder="Birthday" data-edit-field="ropc_family_member.birthday">
-				<?php echo $birthday ? date( 'F j', strtotime( $birthday ) ) : '' ?>
+				<?php echo $birthday ?>
 			</span>
 		</div>
 	<?php endif ?>
