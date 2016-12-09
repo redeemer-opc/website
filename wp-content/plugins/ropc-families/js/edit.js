@@ -588,6 +588,7 @@
 				form.closest( selectors.record_container )
 					.find( selectors.blurry_background )
 					.css( 'background-image', "url(" + data.full[ 0 ] + ")" )
+					.closest( selectors.record_container )
 					.find( '.actual-picture' )
 					.attr( 'data-picture-url', data.full[ 0 ] )
 					.css( 'background-image', "url(" + data.thumb[ 0 ] + ")" )
