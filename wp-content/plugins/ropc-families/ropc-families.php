@@ -111,8 +111,8 @@ class RopcFamilies
 		{
 			if ( $search_terms )
 			{
-				$condition = 'SOUNDEX(`last_name`) = soundex(%s) OR last_name LIKE %s';
-				$db_params = [ $search_terms, "$search_terms%" ];
+				$condition = 'last_name LIKE %s';
+				$db_params = [ "$search_terms%" ];
 			}
 			elseif ( $current_page && preg_match( '/^[a-z]-[a-z]$/i', $current_page ) )
 			{
