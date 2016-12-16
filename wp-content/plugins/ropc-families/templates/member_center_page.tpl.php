@@ -20,6 +20,7 @@
 	<?php elseif ( $type == "splash" ): ?>
 		<div class="member-center-splash">
 			<div class="container">
+				<h2>Member Center</h2>
 				Using the options above, you can:
 				<ul>
 					<li>Navigate and search through the directory</li>
