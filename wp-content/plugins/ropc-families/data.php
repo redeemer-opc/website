@@ -77,7 +77,10 @@ function ropc_get_families( $condition = '', array $db_params = [] )
 			SELECT DISTINCT ropc_family.id
 			FROM ropc_family
 				INNER JOIN ropc_family_member ON ropc_family.id = family_id
-			WHERE $condition";
+			WHERE $condition
+				AND last_name IS NOT NULL
+				AND family_role IN ('husband','wife')
+			ORDER BY last_name ASC";
 		array_unshift( $db_params, $query );
 	 	$family_ids = $wpdb->get_results( call_user_func_array( [ $wpdb, 'prepare' ], $db_params ) );
 	}
@@ -121,14 +124,13 @@ function ropc_get_families( $condition = '', array $db_params = [] )
 		FROM ropc_family
 			INNER JOIN ropc_family_member ON ropc_family.id = family_id '
 		. $where
-		. ' ORDER BY ropc_family_member.last_name, ropc_family_member.first_name'
 	);
 
-	$families_processed = [];
+	$families_processed = array_flip( $ids );
 	foreach ( $families_raw as $family )
 	{
 		$family_id = $family->fam_id;
-		if ( ! isset( $families_processed[ $family_id ] ) )
+		if ( ! is_array( $families_processed[ $family_id ] ) )
 		{
 			$families_processed[ $family_id ] = [
 				'parents' => [],
