@@ -343,7 +343,13 @@
 		{
 			pushUpdate( table, field, new_value, record_id , $( e.target ).parent() );
 		}
-		
+
+		if ( data_field == 'ropc_family.picture_caption' )
+		{
+			$( '[data-record-id=' + record_id + '] .actual-picture' )
+				.attr( 'data-picture-caption', new_value );
+		}
+
 		// Replace the textfield with plain text
 		$( e.target ).parent().text( new_value );
 	}
