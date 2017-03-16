@@ -187,7 +187,7 @@ function ropc_families_display_family( array $family, $can_edit )
 	}
 	
 	$vars[ 'husband' ] = $can_edit || $vars[ 'husband' ]
-		? ropc_families_display_person( $vars[ 'husband' ], $can_edit )
+		? ropc_families_display_person( $vars[ 'husband' ] + [ 'family_role' => 'husband' ], $can_edit )
 		: '';
 	$vars[ 'wife' ] = $can_edit || $vars[ 'wife' ]
 		? ropc_families_display_person( $vars[ 'wife' ] + [ 'family_role' => 'wife' ], $can_edit )
