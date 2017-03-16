@@ -50,6 +50,7 @@ function ropc_families_display_person( array $person, $can_edit )
 		'family_role' => '',
 		'type' => '',
 		'can_edit' => $can_edit,
+		'show_membership' => TRUE,
 	];
 
 	$vars[ 'type_options' ] = [
