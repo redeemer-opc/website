@@ -56,7 +56,7 @@ function ropc_families_display_person( array $person, $can_edit )
 	$vars[ 'type_options' ] = [
 		''                    => '',
 		'member'              => 'Member',
-		'noncommuning_member' => 'Noncommuning Member',
+		'noncommuning_member' => 'Noncommunicant Member',
 		'regular_attendee'    => 'Regular Attendee',
 	];
 	

@@ -23,19 +23,21 @@
 			<span class="delete-person delete-btn fa fa-trash"></span>
 		<?php endif ?>
 	</div>
-	<?php if ( $can_edit ): ?>
-	<select class="member-type">
-		<?php foreach ( $type_options as $value => $name ): ?>
-			<option value="<?php echo $value ?>"
-				<?php echo $value == $type ? 'selected="selected"' : ''?>>
-				<?php echo $name ?>
-			</option>
-		<?php endforeach ?>
-	</select>
-	<?php elseif ( $type ): ?>
-	<div class="member-type">
-		<?php echo $type_options[ $type ] ?>
-	</div>
+	<?php if ( $show_membership ): ?>
+		<?php if ( $can_edit ): ?>
+			<select class="member-type">
+				<?php foreach ( $type_options as $value => $name ): ?>
+					<option value="<?php echo $value ?>"
+						<?php echo $value == $type ? 'selected="selected"' : ''?>>
+						<?php echo $name ?>
+					</option>
+				<?php endforeach ?>
+			</select>
+		<?php elseif ( $type && $type != 'regular_attendee' ): ?>
+			<div class="member-type">
+				<?php echo $type_options[ $type ] ?>
+			</div>
+		<?php endif ?>
 	<?php endif ?>
 	<?php if ( $birthday || $can_edit ): ?>
 		<div class="person-bd">Birthday:
