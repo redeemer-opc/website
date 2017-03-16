@@ -1,7 +1,7 @@
 <div class="family-main-container" data-record-id="<?php echo $fam_id ?>">
 	<div class="picture-backdrop <?php echo $picture_id ? '' : 'no-picture' ?>">
 		<div class="picture-backdrop-blurry-img"
-			style="background-image: url('<?php echo $pic_src_full ?>')">
+			style="background-image: url('https://temp.redeemer-opc.org/wp-content/uploads/2017/03/leaf-1822969_1920.jpg')">
 		</div>
 		<div class="container">
 			<div class="actual-picture" data-picture-caption="<?php echo $picture_caption ?>"
