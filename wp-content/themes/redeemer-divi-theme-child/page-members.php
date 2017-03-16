@@ -3,11 +3,11 @@
  * Template Name: Members
  *
  */
-if (is_user_logged_in()) {
-wp_redirect('/member-center/');
-exit;
+if ( RopcFamilies::can_view() )
+{
+	wp_redirect( '/member-center' );
+	exit;
 }
-
 
 get_header();
 
