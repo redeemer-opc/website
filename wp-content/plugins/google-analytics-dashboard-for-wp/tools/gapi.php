@@ -37,8 +37,13 @@ if ( ! class_exists( 'GADWP_GAPI_Controller' ) ) {
 			$config->setCacheClass( 'Google_Cache_Null' );
 			if ( function_exists( 'curl_version' ) ) {
 				$curlversion = curl_version();
+				$curl_options = array();
 				if ( isset( $curlversion['version'] ) && ( version_compare( PHP_VERSION, '5.3.0' ) >= 0 ) && version_compare( $curlversion['version'], '7.10.8' ) >= 0 && defined( 'GADWP_IP_VERSION' ) && GADWP_IP_VERSION ) {
-					$config->setClassConfig( 'Google_IO_Curl', array( 'options' => array( CURLOPT_IPRESOLVE => GADWP_IP_VERSION ) ) ); // Force CURL_IPRESOLVE_V4 or CURL_IPRESOLVE_V6
+					$curl_options[CURLOPT_IPRESOLVE] = GADWP_IP_VERSION; // Force CURL_IPRESOLVE_V4 or CURL_IPRESOLVE_V6
+				}
+				$curl_options = apply_filters( 'gadwp_curl_options', $curl_options );
+				if ( ! empty( $curl_options ) ) {
+					$config->setClassConfig( 'Google_IO_Curl', array( 'options' => $curl_options ) );
 				}
 			}
 			$this->client = new Google_Client( $config );
@@ -153,14 +158,22 @@ if ( ! class_exists( 'GADWP_GAPI_Controller' ) ) {
 					</td>
         </tr>
         <tr>
-            <td class="gadwp-settings-title"><label for="ga_dash_code" title="<?php _e("Use the red link to get your access code!",'google-analytics-dashboard-for-wp')?>"><?php echo _e( "Access Code:", 'google-analytics-dashboard-for-wp' ); ?></label></td>
-            <td><input type="text" id="ga_dash_code" name="ga_dash_code" value="" size="61" required="required" title="<?php _e("Use the red link to get your access code!",'google-analytics-dashboard-for-wp')?>"></td>
+            <td class="gadwp-settings-title">
+                <label for="ga_dash_code" title="<?php _e("Use the red link to get your access code!",'google-analytics-dashboard-for-wp')?>"><?php echo _e( "Access Code:", 'google-analytics-dashboard-for-wp' ); ?></label>
+            </td>
+            <td>
+                <input type="text" id="ga_dash_code" name="ga_dash_code" value="" size="61" required="required" title="<?php _e("Use the red link to get your access code!",'google-analytics-dashboard-for-wp')?>">
+            </td>
         </tr>
         <tr>
-            <td colspan="2"><hr></td>
+            <td colspan="2">
+                <hr>
+            </td>
         </tr>
         <tr>
-            <td colspan="2"><input type="submit" class="button button-secondary" name="ga_dash_authorize" value="<?php _e( "Save Access Code", 'google-analytics-dashboard-for-wp' ); ?>" /></td>
+            <td colspan="2">
+                <input type="submit" class="button button-secondary" name="ga_dash_authorize" value="<?php _e( "Save Access Code", 'google-analytics-dashboard-for-wp' ); ?>" />
+            </td>
         </tr>
     </table>
 </form>
@@ -274,6 +287,7 @@ if ( ! class_exists( 'GADWP_GAPI_Controller' ) ) {
 					if ( $this->gapi_errors_handler() ) {
 						return - 23;
 					}
+					$options['samplingLevel'] = 'HIGHER_PRECISION';
 					$data = $this->service->data_ga->get( 'ga:' . $projectId, $from, $to, $metrics, $options );
 					GADWP_Tools::set_cache( $serial, $data, $this->get_timeouts( $timeouts ) );
 					$this->gadwp->config->options['api_backoff'] = 0;
@@ -335,6 +349,9 @@ if ( ! class_exists( 'GADWP_GAPI_Controller' ) ) {
 					break;
 				case 'organicSearches' :
 					$title = __( "Organic Searches", 'google-analytics-dashboard-for-wp' );
+					break;
+				case 'uniquePageviews' :
+					$title = __( "Unique Page Views", 'google-analytics-dashboard-for-wp' );
 					break;
 				default :
 					$title = __( "Sessions", 'google-analytics-dashboard-for-wp' );
@@ -404,15 +421,15 @@ if ( ! class_exists( 'GADWP_GAPI_Controller' ) ) {
 			$options = array( 'dimensions' => null, 'quotaUser' => $this->managequota . 'p' . $projectId );
 			if ( $filter ) {
 				$options['filters'] = 'ga:pagePath==' . $filter;
-				$metrics = 'ga:sessions,ga:users,ga:pageviews,ga:BounceRate,ga:organicSearches,ga:pageviewsPerSession';
+				$metrics = 'ga:uniquePageviews,ga:users,ga:pageviews,ga:BounceRate,ga:organicSearches,ga:pageviewsPerSession,ga:avgTimeOnPage,ga:avgPageLoadTime,ga:exitRate';
 			} else {
-				$metrics = 'ga:sessions,ga:users,ga:pageviews,ga:BounceRate,ga:organicSearches,ga:pageviewsPerSession';
+				$metrics = 'ga:sessions,ga:users,ga:pageviews,ga:BounceRate,ga:organicSearches,ga:pageviewsPerSession,ga:avgTimeOnPage,ga:avgPageLoadTime,ga:avgSessionDuration';
 			}
 			$serial = 'qr3_' . $this->get_serial( $projectId . $from . $filter );
 			$data = $this->handle_corereports( $projectId, $from, $to, $metrics, $options, $serial );
 			if ( is_numeric( $data ) ) {
 				if ( $data == - 21 ) {
-					return array_fill( 0, 6, 0 );
+					return array_fill( 0, 9, 0 );
 				} else {
 					return $data;
 				}
@@ -426,9 +443,16 @@ if ( ! class_exists( 'GADWP_GAPI_Controller' ) ) {
 			$gadwp_data[0] = number_format_i18n( $gadwp_data[0] );
 			$gadwp_data[1] = number_format_i18n( $gadwp_data[1] );
 			$gadwp_data[2] = number_format_i18n( $gadwp_data[2] );
-			$gadwp_data[3] = number_format_i18n( $gadwp_data[3], 2 );
+			$gadwp_data[3] = number_format_i18n( $gadwp_data[3], 2 ) . '%';
 			$gadwp_data[4] = number_format_i18n( $gadwp_data[4] );
 			$gadwp_data[5] = number_format_i18n( $gadwp_data[5], 2 );
+			$gadwp_data[6] = gmdate( "H:i:s", $gadwp_data[6] );
+			$gadwp_data[7] = gmdate( "H:i:s", $gadwp_data[7] );
+			if ( $filter ) {
+				$gadwp_data[8] = number_format_i18n( $gadwp_data[8], 2 ) . '%';
+			} else {
+				$gadwp_data[8] = gmdate( "H:i:s", $gadwp_data[8] );
+			}
 
 			return $gadwp_data;
 		}
@@ -825,7 +849,7 @@ if ( ! class_exists( 'GADWP_GAPI_Controller' ) ) {
 			if ( empty( $projectId ) || ! is_numeric( $projectId ) ) {
 				wp_die( - 26 );
 			}
-			if ( in_array( $query, array( 'sessions', 'users', 'organicSearches', 'visitBounceRate', 'pageviews') ) ) {
+			if ( in_array( $query, array( 'sessions', 'users', 'organicSearches', 'visitBounceRate', 'pageviews', 'uniquePageviews' ) ) ) {
 				return $this->get_areachart_data( $projectId, $from, $to, $query, $filter );
 			}
 			if ( $query == 'bottomstats' ) {

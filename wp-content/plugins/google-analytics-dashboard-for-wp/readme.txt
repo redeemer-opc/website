@@ -1,23 +1,23 @@
 === Google Analytics Dashboard for WP ===
 Contributors: deconf
 Donate link: https://deconf.com/donate/
-Tags: google,analytics,google analytics,dashboard,analytics dashboard,google analytics dashboard,google analytics plugin,google analytics widget,tracking,universal google analytics,realtime,multisite,gadwp
+Tags: stats,analytics,google analytics,google analytics dashboard,google analytics plugin,google analytics widget,dashboard,tracking,analytics dashboard,universal google analytics,realtime,multisite,gadwp
 Requires at least: 3.5
-Tested up to: 4.7
-Stable tag: 4.9.4
+Tested up to: 4.7.2
+Stable tag: 4.9.6.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Displays Google Analytics reports in your WordPress Dashboard. Inserts the latest Google Analytics tracking code in your pages.
+Displays Google Analytics stats in your WordPress Dashboard. Inserts the latest Google Analytics tracking code in your pages.
 
 == Description ==
-This Google Analytics for WordPress plugin enables you to track your site using the latest Google Analytics tracking code and allows you to view key Google Analytics reports in your WordPress install.
+This Google Analytics for WordPress plugin enables you to track your site using the latest Google Analytics tracking code and allows you to view key Google Analytics stats in your WordPress install.
 
-In addition to a set of general Google Analytics reports, in-depth Page reports and in-depth Post reports allow further segmentation of your analytics data, providing performance details for each post or page from your website.
+In addition to a set of general Google Analytics stats, in-depth Page reports and in-depth Post reports allow further segmentation of your analytics data, providing performance details for each post or page from your website.
 
 The Google Analytics tracking code is fully customizable through options and hooks, allowing advanced data collection using custom dimensions and events.    
 
-= Google Analytics Real-Time =
+= Google Analytics Real-Time Stats=
 
 Google Analytics reports, in real-time, in your dashboard screen:
 
@@ -29,8 +29,8 @@ Google Analytics reports, in real-time, in your dashboard screen:
 
 The Google Analytics reports you need, on your dashboard, in your All Posts and All Pages screens, and on site's frontend:  
 
-- Sessions, organic searches, page views, bounce rate analytics reports
-- Locations, pages, referrers, keywords, 404 errors analytics reports
+- Sessions, organic searches, page views, bounce rate analytics stats
+- Locations, pages, referrers, keywords, 404 errors analytics stats
 - Traffic channels, social networks, traffic mediums, search engines analytics reports
 - Device categories, browsers, operating systems, screen resolutions, mobile brands analytics reports 
 - User access control over analytics reports
@@ -136,6 +136,29 @@ Google Analytics Dashboard for WP it's released under the GPLv2, you can use it 
 == Upgrade Notice ==
 
 == Changelog ==
+
+= 4.9.6.2 =
+* Enhancements:
+	* switching sampling level to higher precision to increase the accuracy of reports
+	
+= 4.9.6.1 =
+* Enhancements:
+	* enable anonymization for all hits instead of single hits to avoid false-positives from IP Anonymization checking tools
+	
+= 4.9.6 =
+* Enhancements:
+	* introducing average time on page, average page load time, average exit rate, and average session duration metrics
+* Bug Fixes:
+	* use Google Maps API key only if available
+	* fixes gadwp_sites_limit filter 
+	
+= 4.9.5 =
+* Enhancements:
+	* introducing the <strong>gadwp_curl_options</strong> filter to allow changes on CURL options for the Google_IO_Curl class, props by [Alexandre Simard](https://github.com/brocheafoin)  	
+* Bug Fixes:
+	* correction of some files with mixed endings, props by [Edward Dekker](http://www.github.com/edwarddekker) 
+	* only load the necessary resources for frontend widget
+	* corrected a JavaScript error on frontend sidebar widget
 
 = 4.9.4 =
 * Enhancements: 
