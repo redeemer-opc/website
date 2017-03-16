@@ -17,6 +17,9 @@
 			<?php echo ropc_families_display_family( [], TRUE ); ?>
 		</div>
 		<?php endif ?>
+		<div class="container return-to-top">
+			<a class="btn" href="#member_center_nav"><span class="fa fa-arrow-up"></span> Return to top</a>
+		</div>
 	<?php elseif ( $type == "splash" ): ?>
 		<div class="member-center-splash">
 			<div class="container">

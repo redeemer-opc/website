@@ -1,4 +1,4 @@
-<div class="member-center-nav">
+<div id="member_center_nav" class="member-center-nav">
 	<div class="container">
 		<?php foreach ( $divisions_processed as $url_part => $info ): ?>
 			<a class="nav-btn hoverable <?php echo $info[ 'class' ] ?>" href="?page=<?php echo $url_part ?>">
