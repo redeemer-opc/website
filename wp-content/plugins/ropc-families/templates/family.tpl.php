@@ -55,14 +55,10 @@
 				Additional Info
 			</div>
 			<?php if ( $can_edit || $address1 ) : ?>
-				<div data-placeholder="Address line 1" data-edit-field="ropc_family.address1">
-					<?php echo $address1 ?>
-				</div>
+				<div data-placeholder="Address line 1" data-edit-field="ropc_family.address1"><?php echo $address1 ?></div>
 			<?php endif ?>
 			<?php if ( $can_edit || $address2 ) : ?>
-				<div data-placeholder="Address line 2" data-edit-field="ropc_family.address2">
-					<?php echo $address2 ?>
-				</div>
+				<div data-placeholder="Address line 2" data-edit-field="ropc_family.address2"><?php echo $address2 ?></div>
 			<?php endif ?>
 			<?php if ( $can_edit || $city ) : ?>
 				<span data-placeholder="City" data-edit-field="ropc_family.city"><?php echo $city ?></span>,
@@ -71,23 +67,17 @@
 				<span data-placeholder="State" data-edit-field="ropc_family.state"><?php echo $state ?></span>,
 			<?php endif ?>
 			<?php if ( $can_edit || $zip ) : ?>
-				<span data-placeholder="Zip" data-edit-field="ropc_family.zip">
-					<?php echo $zip ?>
-				</span>
+				<span data-placeholder="Zip" data-edit-field="ropc_family.zip"><?php echo $zip ?></span>
 				<br>
 			<?php endif ?>
 			<?php if ( $can_edit || $home_phone ) : ?>
 				<div class="family-phone">Home phone:
-					<span data-placeholder="Home phone" data-edit-field="ropc_family.home_phone">
-						<?php echo $home_phone ?>
-					</span>
+					<span data-placeholder="Home phone" data-edit-field="ropc_family.home_phone"><?php echo $home_phone ?></span>
 				</div>
 			<?php endif ?>
 			<?php if ( $can_edit || $anniversary ): ?>
 				<div class="family-anniversary">Anniversary:
-					<span data-placeholder="Anniversary" data-edit-field="ropc_family.anniversary">
-						<?php echo $anniversary ?>
-					</span>
+					<span data-placeholder="Anniversary" data-edit-field="ropc_family.anniversary"><?php echo $anniversary ?></span>
 				</div>
 			<?php endif ?>
 		</div>
