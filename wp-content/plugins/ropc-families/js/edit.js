@@ -21,6 +21,7 @@
 		families_table      : '.families-table',
 		family_container    : '.family-main-container',
 		family_image        : '.family-image',
+		family_image_remove : '.family-image-remove',
 		family_template     : '.family-template',
 		loader_container    : '.loader-container',
 		member_type         : 'select.member-type',
@@ -239,8 +240,10 @@
 	 *	The record id
 	 * @param jQuery element
 	 *	OPTIONAL. A jQuery of the edited element (the *parent* of the <input>)
+	 * @param function callback
+	 *	OPTINOAL
 	 */
-	function pushUpdate( table, field, new_value, id, element )
+	function pushUpdate( table, field, new_value, id, element, callback )
 	{
 		var fields = {};
 		fields[ field ] = new_value;
@@ -252,36 +255,41 @@
 			fields : fields,
 			id : id,
 		};
-		$.post( ajaxurl, payload, function( data )
+		if ( typeof callback != 'function' )
 		{
-			// If we received an 'element' param
-			if ( element )
+			callback = function( data )
 			{
-				// If we're updating a date field, update the field according to the server's
-				// response (if the given date was invalid, this will clear out the field)
-				[ 'birthday', 'anniversary' ].forEach( function( value )
+				// If we received an 'element' param
+				if ( element )
 				{
-					if ( Object.keys( data ).indexOf( value ) !== -1 )
+					// If we're updating a date field, update the field according to the server's
+					// response (if the given date was invalid, this will clear out the field)
+					[ 'birthday', 'anniversary' ].forEach( function( value )
 					{
-						element.text( data[ value ] || '' );
-					}
-				} );
-			}
-		} ).fail( onSaveFail );
+						if ( Object.keys( data ).indexOf( value ) !== -1 )
+						{
+							element.text( data[ value ] || '' );
+						}
+					} );
+				}
+			};
+		}
+		$.post( ajaxurl, payload, callback ).fail( onSaveFail );
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	// Event Handlers
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	
-	$( document ).on( 'click',   selectors.editable_field,  onEditableClicked );
-	$( document ).on( 'keydown', selectors.editable_field,  onEditableKeypressed );
-	$( document ).on( 'click',   selectors.add_child,       onAddChildClicked );
-	$( document ).on( 'click',   selectors.add_family,      onAddFamilyClicked );
-	$( document ).on( 'click',   selectors.delete_person,   onDeletePersonClicked );
-	$( document ).on( 'click',   selectors.delete_family,   onDeleteFamilyClicked );
-	$( document ).on( 'change',  selectors.family_image,    onFamilyImageChanged );
-	$( document ).on( 'change',  selectors.member_type,     onMemberTypeChanged )
+	$( document ).on( 'click',   selectors.editable_field,      onEditableClicked );
+	$( document ).on( 'keydown', selectors.editable_field,      onEditableKeypressed );
+	$( document ).on( 'click',   selectors.add_child,           onAddChildClicked );
+	$( document ).on( 'click',   selectors.add_family,          onAddFamilyClicked );
+	$( document ).on( 'click',   selectors.delete_person,       onDeletePersonClicked );
+	$( document ).on( 'click',   selectors.delete_family,       onDeleteFamilyClicked );
+	$( document ).on( 'click',   selectors.family_image_remove, onFamilyImageRemoveClicked );
+	$( document ).on( 'change',  selectors.family_image,        onFamilyImageChanged );
+	$( document ).on( 'change',  selectors.member_type,         onMemberTypeChanged )
 	
 	/**
 	 * @brief
@@ -499,6 +507,31 @@
 	{
 		// Submit the image's containing form via Ajax
 		$( e.target ).closest( "form" ).ajaxSubmit( options );
+	}
+
+	/**
+	 * @brief
+	 *	Click handler for 'Remove picture' buttons
+	 */
+	function onFamilyImageRemoveClicked( e )
+	{
+		var family = $( e.target ).closest( selectors.record_container );
+		var form = $( e.target ).closest( 'form' );
+		var family_id = family.attr( record_id_attr );
+
+		pushUpdate( 'ropc_family', 'picture_id', null, family_id, undefined, function( data )
+		{
+			pushUpdate( 'ropc_family', 'picture_caption', null, family_id, undefined, function( data )
+			{
+				form.find( selectors.family_image )
+					.find( '[type=file]' )
+					.closest( 'label' )
+					.find( '.label-text' )
+					.text( 'Add picture' );
+
+				family.find( '.picture-backdrop' ).addClass( 'no-picture' );
+			} );
+		} );
 	}
 
 	/**

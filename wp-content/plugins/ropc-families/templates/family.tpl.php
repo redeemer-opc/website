@@ -21,6 +21,9 @@
 						<input type="file" class="hidden" name="family_image">
 						<span class="label-text"><?php echo $picture_id ? "Change" : "Add" ?> picture</span>
 					</label>
+					<label class="family-image-remove button">
+						<span class="label-text">Remove picture</span>
+					</label>
 					<input type="hidden" name="action" value="update_ropc_picture">
 					<input type="hidden" name="family_id" value="<?php echo $fam_id ?>">
 				</form>
